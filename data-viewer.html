@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Center - Tinder Scraper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #fe3c72;
+      --primary-gradient: linear-gradient(135deg, #fe3c72, #ff655b);
+      --secondary-color: #424242;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --error-color: #dc3545;
+      --background-color: #ffffff;
+      --surface-color: #f8f9fa;
+      --text-primary: #212121;
+      --text-secondary: #616161;
+      --border-color: #e0e0e0;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --card-gradient: linear-gradient(135deg, rgba(254, 60, 114, 0.1), rgba(254, 60, 114, 0.02));
+    }
+
+    body.dark-theme {
+      --primary-color: #fe3c72;
+      --primary-gradient: linear-gradient(135deg, #fe3c72, #ff655b);
+      --secondary-color: #9aa0a6;
+      --background-color: #121212;
+      --surface-color: #1e1e1e;
+      --text-primary: #e8eaed;
+      --text-secondary: #9aa0a6;
+      --border-color: #3c4043;
+      --shadow-color: rgba(0, 0, 0, 0.3);
+      --card-gradient: linear-gradient(135deg, rgba(254, 60, 114, 0.15), rgba(254, 60, 114, 0.05));
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+    }
+
+    .header {
+      background-color: var(--surface-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 4px var(--shadow-color);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .logo i {
+      font-size: 24px;
+      color: var(--primary-color);
+    }
+
+    .logo h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-button {
+      background-color: transparent;
+      border: none;
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .nav-button:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-button.active {
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-button i {
+      font-size: 16px;
+    }
+
+    .main-content {
+      margin-top: 30px;
+      padding-bottom: 60px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+    }
+
+    .filters-section {
+      background: var(--surface-color);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      margin-bottom: 24px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .action-button {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .action-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(254, 60, 114, 0.3);
+    }
+
+    .action-button.secondary {
+      background: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .action-button.secondary:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(254, 60, 114, 0.1);
+    }
+
+    .profiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .profile-card {
+      background: var(--surface-color);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .profile-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px var(--shadow-color);
+    }
+
+    .profile-header {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+
+    .profile-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-card:hover .profile-cover {
+      transform: scale(1.05);
+    }
+
+    .profile-info {
+      padding: 16px;
+    }
+
+    .profile-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .profile-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .profile-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .profile-detail {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .profile-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .image-gallery {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 4px;
+      margin-bottom: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-color) var(--surface-color);
+    }
+
+    .image-gallery::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .image-gallery::-webkit-scrollbar-track {
+      background: var(--surface-color);
+      border-radius: 3px;
+    }
+
+    .image-gallery::-webkit-scrollbar-thumb {
+      background-color: var(--primary-color);
+      border-radius: 3px;
+    }
+
+    .gallery-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .gallery-image:hover {
+      transform: scale(1.05);
+    }
+
+    .profile-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .view-button {
+      color: var(--primary-color);
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .view-button:hover {
+      text-decoration: underline;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 40px;
+    }
+
+    .page-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--surface-color);
+      color: var(--text-primary);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .page-button:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .page-button.active {
+      background: var(--primary-gradient);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .page-button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-container {
+      background-color: var(--surface-color);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 25px var(--shadow-color);
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+    }
+
+    .modal-backdrop.active .modal-container {
+      transform: translateY(0);
+    }
+
+    .modal-content {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: white;
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: background 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .profile-viewer {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .profile-image-section {
+      position: relative;
+      height: 60vh;
+      overflow: hidden;
+    }
+
+    .profile-main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .image-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: white;
+      font-size: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .image-nav:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .prev-image {
+      left: 16px;
+    }
+
+    .next-image {
+      right: 16px;
+    }
+
+    .profile-image-count {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .profile-thumbnails {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 8px;
+      background-color: var(--surface-color);
+    }
+
+    .profile-thumbnail {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .profile-thumbnail:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    .profile-thumbnail.active {
+      opacity: 1;
+      border: 2px solid var(--primary-color);
+    }
+
+    .profile-details-section {
+      padding: 24px;
+    }
+
+    .profile-id {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .labels-section {
+      margin-top: 24px;
+    }
+
+    .labels-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .labels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .label-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .label-name {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .label-value {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .label-range {
+      height: 6px;
+      background-color: rgba(254, 60, 114, 0.1);
+      border-radius: 3px;
+      position: relative;
+      margin-top: 4px;
+    }
+
+    .label-range-fill {
+      position: absolute;
+      height: 100%;
+      background: var(--primary-gradient);
+      border-radius: 3px;
+    }
+
+    .label-range-min {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .label-range-max {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .ethnicity-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ethnicity-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .no-results {
+      background: var(--surface-color);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 4px 8px var(--shadow-color);
+    }
+
+    .no-results-icon {
+      font-size: 48px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .no-results-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .no-results-message {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+
+      .profiles-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .labels-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-image-section {
+        height: 40vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="#" class="logo">
+        <i class="fas fa-fire"></i>
+        <h1>Tinder Scraper</h1>
+      </a>
+      <div class="nav-menu">
+        <button class="nav-button" onclick="navigateTo('dashboard')">
+          <i class="fas fa-chart-pie"></i>
+          Dashboard
+        </button>
+        <button class="nav-button active" onclick="navigateTo('data-center')">
+          <i class="fas fa-database"></i>
+          Data Center
+        </button>
+        <button class="nav-button" onclick="navigateTo('logs')">
+          <i class="fas fa-list"></i>
+          Logs
+        </button>
+        <button class="nav-button" onclick="navigateTo('stryke-center')">
+          <i class="fas fa-chart-bar"></i>
+          Statistics
+        </button>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <h2 class="section-title">Data Center</h2>
+
+    <div class="filters-section">
+      <div class="filters-grid">
+        <div class="filter-item">
+          <label class="filter-label" for="locationFilter">Location</label>
+          <select class="form-input" id="locationFilter">
+            <option value="">All Locations</option>
+            <option value="new-york">New York, USA</option>
+            <option value="los-angeles">Los Angeles, USA</option>
+            <option value="london">London, UK</option>
+            <option value="paris">Paris, France</option>
+            <option value="tokyo">Tokyo, Japan</option>
+            <!-- More locations can be added here -->
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label" for="ethnicityFilter">Ethnicity</label>
+          <select class="form-input" id="ethnicityFilter">
+            <option value="">All Ethnicities</option>
+            <option value="sub-saharan-african">Sub-Saharan African</option>
+            <option value="north-african">North African/Middle Eastern</option>
+            <option value="european">European</option>
+            <option value="east-asian">East Asian</option>
+            <option value="south-asian">South Asian</option>
+            <option value="southeast-asian">Southeast Asian</option>
+            <option value="mixed">Mixed/Multiracial</option>
+            <!-- More ethnicities can be added here -->
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label" for="ageMinFilter">Age Range</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="number" class="form-input" id="ageMinFilter" placeholder="Min" min="18" max="50">
+            <input type="number" class="form-input" id="ageMaxFilter" placeholder="Max" min="18" max="50">
+          </div>
+        </div>
+
+        <div class="filter-item" style="justify-content: flex-end;">
+          <button class="action-button" onclick="applyFilters()">
+            <i class="fas fa-filter"></i>
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="profiles-grid" id="profilesGrid">
+      <!-- Profile cards will be loaded here -->
+    </div>
+
+    <div class="pagination" id="pagination">
+      <!-- Pagination buttons will be generated here -->
+    </div>
+  </main>
+
+  <!-- Profile Viewer Modal -->
+  <div class="modal-backdrop" id="profileViewerModal">
+    <div class="modal-container">
+      <button class="modal-close" onclick="closeModal('profileViewerModal')">&times;</button>
+      <div class="modal-content">
+        <div class="profile-viewer" id="profileViewer">
+          <!-- Profile viewer content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let darkTheme = false;
+    let currentPage = 1;
+    let totalPages = 1;
+    let currentProfiles = [];
+    let viewingProfileIndex = 0;
+    let viewingImageIndex = 0;
+
+    // DOM Ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize theme
+      initTheme();
+      
+      // Load initial data
+      loadProfiles();
+    });
+
+    // Initialize theme
+    function initTheme() {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        toggleTheme();
+      }
+    }
+
+    // Toggle between light and dark theme
+    function toggleTheme() {
+      darkTheme = !darkTheme;
+      document.body.classList.toggle('dark-theme', darkTheme);
+      const icon = document.querySelector('.theme-toggle i');
+      icon.className = darkTheme ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Navigate to another page
+    function navigateTo(page) {
+      switch (page) {
+        case 'dashboard':
+          window.location.href = '/';
+          break;
+        case 'data-center':
+          window.location.href = '/data-center';
+          break;
+        case 'logs':
+          window.location.href = '/logs';
+          break;
+        case 'stryke-center':
+          window.location.href = '/stryke-center';
+          break;
+        default:
+          console.error('Unknown page:', page);
+      }
+    }
+
+    // Load profiles
+    function loadProfiles(page = 1) {
+      // For demonstration, we'll use mock data
+      // In a real app, this would be an API call with pagination
+      
+      // Simulate loading state
+      const profilesGrid = document.getElementById('profilesGrid');
+      profilesGrid.innerHTML = '<div class="no-results"><i class="fas fa-spinner fa-spin no-results-icon"></i><div class="no-results-title">Loading profiles...</div></div>';
+      
+      // Simulate API delay
+      setTimeout(() => {
+        // Generate mock profiles
+        const mockProfiles = generateMockProfiles(20);
+        currentProfiles = mockProfiles;
+        
+        // Update UI
+        renderProfiles(mockProfiles);
+        renderPagination(page, 5); // 5 total pages for demo
+      }, 500);
+    }
+
+    // Generate mock profile data
+    function generateMockProfiles(count) {
+      const profiles = [];
+      const locations = ['New York, USA', 'Los Angeles, USA', 'London, UK', 'Paris, France', 'Tokyo, Japan'];
+      
+      for (let i = 0; i < count; i++) {
+        const id = `00${i + 1}`.slice(-5);
+        const location = locations[Math.floor(Math.random() * locations.length)];
+        const imageCount = Math.floor(Math.random() * 5) + 5; // 5-9 images
+        
+        profiles.push({
+          id: id,
+          location: location,
+          cityCode: location.split(',')[0].toLowerCase().replace(' ', '-'),
+          imageCount: imageCount,
+          scrapedAt: '2025-03-07',
+          images: Array.from({ length: imageCount }, (_, j) => ({
+            id: `${j + 1}`.padStart(6, '0'),
+            url: `https://source.unsplash.com/random/300x400?portrait,woman&sig=${id}${j}`
+          })),
+          labels: generateMockLabels()
+        });
+      }
+      
+      return profiles;
+    }
+
+    // Generate mock label data
+    function generateMockLabels() {
+      return {
+        celibacy: [randomInt(30, 50), randomInt(60, 90)],
+        cooperativeness: [randomInt(40, 60), randomInt(70, 100)],
+        intelligence: [randomInt(50, 70), randomInt(75, 100)],
+        weight: [randomInt(45, 55), randomInt(55, 70)],
+        waist: [randomInt(60, 70), randomInt(70, 85)],
+        bust: [randomInt(80, 90), randomInt(90, 100)],
+        hips: [randomInt(85, 95), randomInt(95, 105)],
+        gender: [
+          { name: 'male', value: [randomInt(0, 10), randomInt(5, 15)] },
+          { name: 'female', value: [randomInt(85, 95), randomInt(90, 100)] }
+        ],
+        age: [randomInt(20, 25), randomInt(25, 35)],
+        height: [randomInt(150, 165), randomInt(165, 180)],
+        face: [randomInt(60, 75), randomInt(75, 95)],
+        ethnicity: generateMockEthnicity(),
+        big_spender: [randomInt(30, 50), randomInt(50, 80)],
+        presentable: [randomInt(60, 80), randomInt(80, 100)],
+        muscle_percentage: [randomInt(5, 15), randomInt(15, 30)],
+        fat_percentage: [randomInt(10, 20), randomInt(20, 30)],
+        dominance: [randomInt(30, 60), randomInt(60, 90)],
+        power: [randomInt(30, 60), randomInt(60, 90)],
+        confidence: [randomInt(50, 70), randomInt(70, 95)]
+      };
+    }
+
+    // Generate mock ethnicity data
+    function generateMockEthnicity() {
+      const ethnicities = [
+        'Sub-Saharan African',
+        'North African/Middle Eastern',
+        'European',
+        'East Asian',
+        'South Asian',
+        'Southeast Asian',
+        'Central Asian',
+        'Mixed/Multiracial'
+      ];
+      
+      // Pick a primary ethnicity
+      const primaryIndex = Math.floor(Math.random() * ethnicities.length);
+      
+      return ethnicities.map((name, index) => {
+        if (index === primaryIndex) {
+          return {
+            name: name,
+            value: [randomInt(70, 85), randomInt(85, 95)]
+          };
+        } else {
+          return {
+            name: name,
+            value: [randomInt(0, 10), randomInt(5, 20)]
+          };
+        }
+      });
+    }
+
+    // Helper function for random integers
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Render profiles
+    function renderProfiles(profiles) {
+      const profilesGrid = document.getElementById('profilesGrid');
+      
+      if (profiles.length === 0) {
+        profilesGrid.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-search no-results-icon"></i>
+            <div class="no-results-title">No profiles found</div>
+            <div class="no-results-message">Try adjusting your filters to see more results.</div>
+          </div>
+        `;
+        return;
+      }
+      
+      profilesGrid.innerHTML = '';
+      
+      profiles.forEach((profile, index) => {
+        const card = document.createElement('div');
+        card.className = 'profile-card';
+        
+        card.innerHTML = `
+          <div class="profile-header">
+            <img src="${profile.images[0].url}" alt="Profile" class="profile-cover">
+          </div>
+          <div class="profile-info">
+            <div class="profile-title">Profile ${profile.id}</div>
+            <div class="profile-subtitle">${profile.location}</div>
+            <div class="profile-details">
+              <div class="profile-detail">
+                <i class="fas fa-images"></i>
+                ${profile.imageCount} images
+              </div>
+              <div class="profile-detail">
+                <i class="fas fa-calendar"></i>
+                Scraped on ${profile.scrapedAt}
+              </div>
+              <div class="profile-badge">
+                ${getPrimaryEthnicity(profile.labels.ethnicity)}
+              </div>
+            </div>
+            
+            <div class="image-gallery">
+              ${profile.images.map(image => `
+                <img src="${image.url}" alt="Image" class="gallery-image">
+              `).join('')}
+            </div>
+            
+            <div class="profile-actions">
+              <button class="view-button" onclick="viewProfile(${index})">
+                View Profile <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        
+        profilesGrid.appendChild(card);
+      });
+    }
+
+    // Get primary ethnicity
+    function getPrimaryEthnicity(ethnicities) {
+      if (!ethnicities || ethnicities.length === 0) return 'Unknown';
+      
+      const sorted = [...ethnicities].sort((a, b) => b.value[1] - a.value[1]);
+      return sorted[0].name;
+    }
+
+    // Render pagination
+    function renderPagination(currentPage, totalPages) {
+      const paginationEl = document.getElementById('pagination');
+      paginationEl.innerHTML = '';
+      
+      // Previous button
+      const prevButton = document.createElement('button');
+      prevButton.className = `page-button ${currentPage === 1 ? 'disabled' : ''}`;
+      prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      prevButton.disabled = currentPage === 1;
+      prevButton.onclick = () => loadProfiles(currentPage - 1);
+      paginationEl.appendChild(prevButton);
+      
+      // Page buttons
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, startPage + 4);
+      
+      for (let i = startPage; i <= endPage; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.className = `page-button ${i === currentPage ? 'active' : ''}`;
+        pageButton.textContent = i;
+        pageButton.onclick = () => loadProfiles(i);
+        paginationEl.appendChild(pageButton);
+      }
+      
+      // Next button
+      const nextButton = document.createElement('button');
+      nextButton.className = `page-button ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      nextButton.disabled = currentPage === totalPages;
+      nextButton.onclick = () => loadProfiles(currentPage + 1);
+      paginationEl.appendChild(nextButton);
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const locationFilter = document.getElementById('locationFilter').value;
+      const ethnicityFilter = document.getElementById('ethnicityFilter').value;
+      const ageMinFilter = document.getElementById('ageMinFilter').value;
+      const ageMaxFilter = document.getElementById('ageMaxFilter').value;
+      
+      // For demonstration, we'll just reload the profiles
+      // In a real app, this would send the filter params to the API
+      loadProfiles(1);
+    }
+
+    // View profile details
+    function viewProfile(index) {
+      viewingProfileIndex = index;
+      viewingImageIndex = 0;
+      
+      const profile = currentProfiles[index];
+      const profileViewer = document.getElementById('profileViewer');
+      
+      profileViewer.innerHTML = `
+        <div class="profile-image-section">
+          <img src="${profile.images[0].url}" alt="Profile" class="profile-main-image" id="mainProfileImage">
+          <button class="image-nav prev-image" onclick="prevImage()" ${viewingImageIndex === 0 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="image-nav next-image" onclick="nextImage()" ${viewingImageIndex === profile.images.length - 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <div class="profile-image-count">
+            <span id="currentImageIndex">1</span> / ${profile.images.length}
+          </div>
+        </div>
+        
+        <div class="profile-thumbnails">
+          ${profile.images.map((image, i) => `
+            <img src="${image.url}" alt="Thumbnail" class="profile-thumbnail ${i === 0 ? 'active' : ''}" onclick="selectImage(${i})">
+          `).join('')}
+        </div>
+        
+        <div class="profile-details-section">
+          <div class="profile-id">Profile ID: ${profile.id} • ${profile.location}</div>
+          
+          <div class="labels-section">
+            <div class="labels-title">Profile Labels</div>
+            
+            <div class="labels-grid">
+              <div class="label-item">
+                <div class="label-name">Age Range</div>
+                <div class="label-value">${profile.labels.age[0]}-${profile.labels.age[1]} years</div>
+                <div class="label-range">
+                  <div class="label-range-fill" style="left: ${profile.labels.age[0] / 50 * 100}%; width: ${(profile.labels.age[1] - profile.labels.age[0]) / 50 * 100}%"></div>
+                  <div class="label-range-min" style="left: ${profile.labels.age[0] / 50 * 100}%"></div>
+                  <div class="label-range-max" style="left: ${profile.labels.age[1] / 50 * 100}%"></div>
+                </div>
+              </div>
+              
+              <div class="label-item">
+                <div class="label-name">Height Range</div>
+                <div class="label-value">${profile.labels.height[0]}-${profile.labels.height[1]} cm</div>
+                <div class="label-range">
+                  <div class="label-range-fill" style="left: ${(profile.labels.height[0] - 140) / 60 * 100}%; width: ${(profile.labels.height[1] - profile.labels.height[0]) / 60 * 100}%"></div>
+                  <div class="label-range-min" style="left: ${(profile.labels.height[0] - 140) / 60 * 100}%"></div>
+                  <div class="label-range-max" style="left: ${(profile.labels.height[1] - 140) / 60 * 100}%"></div>
+                </div>
+              </div>
+              
+              <div class="label-item">
+                <div class="label-name">Weight Range</div>
+                <div class="label-value">${profile.labels.weight[0]}-${profile.labels.weight[1]} kg</div>
+                <div class="label-range">
+                  <div class="label-range-fill" style="left: ${(profile.labels.weight[0] - 40) / 60 * 100}%; width: ${(profile.labels.weight[1] - profile.labels.weight[0]) / 60 * 100}%"></div>
+                  <div class="label-range-min" style="left: ${(profile.labels.weight[0] - 40) / 60 * 100}%"></div>
+                  <div class="label-range-max" style="left: ${(profile.labels.weight[1] - 40) / 60 * 100}%"></div>
+                </div>
+              </div>
+              
+              <div class="label-item">
+                <div class="label-name">Intelligence</div>
+                <div class="label-value">${profile.labels.intelligence[0]}-${profile.labels.intelligence[1]}%</div>
+                <div class="label-range">
+                  <div class="label-range-fill" style="left: ${profile.labels.intelligence[0]}%; width: ${profile.labels.intelligence[1] - profile.labels.intelligence[0]}%"></div>
+                  <div class="label-range-min" style="left: ${profile.labels.intelligence[0]}%"></div>
+                  <div class="label-range-max" style="left: ${profile.labels.intelligence[1]}%"></div>
+                </div>
+              </div>
+              
+              <div class="label-item">
+                <div class="label-name">Cooperativeness</div>
+                <div class="label-value">${profile.labels.cooperativeness[0]}-${profile.labels.cooperativeness[1]}%</div>
+                <div class="label-range">
+                  <div class="label-range-fill" style="left: ${profile.labels.cooperativeness[0]}%; width: ${profile.labels.cooperativeness[1] - profile.labels.cooperativeness[0]}%"></div>
+                  <div class="label-range-min" style="left: ${profile.labels.cooperativeness[0]}%"></div>
+                  <div class="label-range-max" style="left: ${profile.labels.cooperativeness[1]}%"></div>
+                </div>
+              </div>
+              
+              <div class="label-item">
+                <div class="label-name">Confidence</div>
+                <div class="label-value">${profile.labels.confidence[0]}-${profile.labels.confidence[1]}%</div>
+                <div class="label-range">
+                  <div class="label-range-fill" style="left: ${profile.labels.confidence[0]}%; width: ${profile.labels.confidence[1] - profile.labels.confidence[0]}%"></div>
+                  <div class="label-range-min" style="left: ${profile.labels.confidence[0]}%"></div>
+                  <div class="label-range-max" style="left: ${profile.labels.confidence[1]}%"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="labels-title" style="margin-top: 24px;">Ethnicity</div>
+            <div class="ethnicity-items">
+              ${profile.labels.ethnicity
+                .filter(e => e.value[1] > 20)
+                .sort((a, b) => b.value[1] - a.value[1])
+                .map(ethnicity => `
+                  <div class="ethnicity-item">
+                    ${ethnicity.name}: ${ethnicity.value[0]}-${ethnicity.value[1]}%
+                  </div>
+                `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      
+      showModal('profileViewerModal');
+    }
+
+    // Show modal
+    function showModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('active');
+    }
+
+    // Close modal
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('active');
+    }
+
+    // Navigate to previous image
+    function prevImage() {
+      if (viewingImageIndex > 0) {
+        viewingImageIndex--;
+        updateProfileImage();
+      }
+    }
+
+    // Navigate to next image
+    function nextImage() {
+      const profile = currentProfiles[viewingProfileIndex];
+      if (viewingImageIndex < profile.images.length - 1) {
+        viewingImageIndex++;
+        updateProfileImage();
+      }
+    }
+
+    // Select specific image
+    function selectImage(index) {
+      viewingImageIndex = index;
+      updateProfileImage();
+    }
+
+    // Update profile image display
+    function updateProfileImage() {
+      const profile = currentProfiles[viewingProfileIndex];
+      
+      // Update main image
+      document.getElementById('mainProfileImage').src = profile.images[viewingImageIndex].url;
+      
+      // Update image counter
+      document.getElementById('currentImageIndex').textContent = viewingImageIndex + 1;
+      
+      // Update thumbnails
+      const thumbnails = document.querySelectorAll('.profile-thumbnail');
+      thumbnails.forEach((thumbnail, i) => {
+        thumbnail.classList.toggle('active', i === viewingImageIndex);
+      });
+      
+      // Update navigation buttons
+      const prevButton = document.querySelector('.prev-image');
+      const nextButton = document.querySelector('.next-image');
+      
+      prevButton.disabled = viewingImageIndex === 0;
+      nextButton.disabled = viewingImageIndex === profile.images.length - 1;
+    }
+  </script>
+</body>
+</html>

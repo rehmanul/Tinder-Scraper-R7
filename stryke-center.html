@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistics - Tinder Scraper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #fe3c72;
+      --primary-gradient: linear-gradient(135deg, #fe3c72, #ff655b);
+      --secondary-color: #424242;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --error-color: #dc3545;
+      --background-color: #ffffff;
+      --surface-color: #f8f9fa;
+      --text-primary: #212121;
+      --text-secondary: #616161;
+      --border-color: #e0e0e0;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --card-gradient: linear-gradient(135deg, rgba(254, 60, 114, 0.1), rgba(254, 60, 114, 0.02));
+      --chart-color-1: #fe3c72;
+      --chart-color-2: #ff655b;
+      --chart-color-3: #4285f4;
+      --chart-color-4: #34a853;
+      --chart-color-5: #fbbc05;
+      --chart-grid-color: #e0e0e0;
+      --chart-text-color: #616161;
+    }
+
+    body.dark-theme {
+      --primary-color: #fe3c72;
+      --primary-gradient: linear-gradient(135deg, #fe3c72, #ff655b);
+      --secondary-color: #9aa0a6;
+      --background-color: #121212;
+      --surface-color: #1e1e1e;
+      --text-primary: #e8eaed;
+      --text-secondary: #9aa0a6;
+      --border-color: #3c4043;
+      --shadow-color: rgba(0, 0, 0, 0.3);
+      --card-gradient: linear-gradient(135deg, rgba(254, 60, 114, 0.15), rgba(254, 60, 114, 0.05));
+      --chart-grid-color: #3c4043;
+      --chart-text-color: #9aa0a6;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+    }
+
+    .header {
+      background-color: var(--surface-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 4px var(--shadow-color);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .logo i {
+      font-size: 24px;
+      color: var(--primary-color);
+    }
+
+    .logo h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-button {
+      background-color: transparent;
+      border: none;
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .nav-button:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-button.active {
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-button i {
+      font-size: 16px;
+    }
+
+    .main-content {
+      margin-top: 30px;
+      padding-bottom: 60px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .dashboard-card {
+      background: var(--surface-color);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--card-gradient);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .dashboard-card:hover::before {
+      opacity: 1;
+    }
+
+    .dashboard-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dashboard-card-title i {
+      color: var(--primary-color);
+    }
+
+    .chart-container {
+      height: 300px;
+      position: relative;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface-color);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--card-gradient);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .stat-icon {
+      font-size: 32px;
+      color: var(--primary-color);
+      margin-bottom: 16px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .filters {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .filter-dropdown {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      font-size: 14px;
+      min-width: 120px;
+    }
+
+    .filter-button {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .filter-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(254, 60, 114, 0.3);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+    }
+
+    .label-distribution {
+      margin-top: 24px;
+    }
+
+    .label-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .label-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .label-name {
+      width: 120px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .label-bar-container {
+      flex: 1;
+      height: 24px;
+      background-color: rgba(254, 60, 114, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .label-bar-min {
+      position: absolute;
+      height: 100%;
+      background-color: var(--chart-color-3);
+      border-radius: 12px 0 0 12px;
+    }
+
+    .label-bar-max {
+      position: absolute;
+      height: 100%;
+      background-color: var(--chart-color-1);
+      border-radius: 0;
+    }
+
+    .label-values {
+      width: 150px;
+      text-align: right;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      padding-left: 16px;
+    }
+
+    .ethnicity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .ethnicity-card {
+      background-color: var(--surface-color);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 4px var(--shadow-color);
+    }
+
+    .ethnicity-percentage {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+    }
+
+    .ethnicity-name {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .filters {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .ethnicity-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="#" class="logo">
+        <i class="fas fa-fire"></i>
+        <h1>Tinder Scraper</h1>
+      </a>
+      <div class="nav-menu">
+        <button class="nav-button" onclick="navigateTo('dashboard')">
+          <i class="fas fa-chart-pie"></i>
+          Dashboard
+        </button>
+        <button class="nav-button" onclick="navigateTo('data-center')">
+          <i class="fas fa-database"></i>
+          Data Center
+        </button>
+        <button class="nav-button" onclick="navigateTo('logs')">
+          <i class="fas fa-list"></i>
+          Logs
+        </button>
+        <button class="nav-button active" onclick="navigateTo('stryke-center')">
+          <i class="fas fa-chart-bar"></i>
+          Statistics
+        </button>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <h2 class="section-title">Statistics Dashboard</h2>
+
+    <div class="filters">
+      <div class="filter-item">
+        <label class="filter-label" for="milestoneFilter">Milestone:</label>
+        <select class="filter-dropdown" id="milestoneFilter">
+          <option value="all">All Milestones</option>
+          <option value="1">Milestone 1</option>
+          <option value="2">Milestone 2</option>
+          <option value="3">Milestone 3</option>
+          <option value="4">Milestone 4</option>
+          <option value="5">Milestone 5</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label class="filter-label" for="locationFilter">Location:</label>
+        <select class="filter-dropdown" id="locationFilter">
+          <option value="all">All Locations</option>
+          <option value="new-york">New York</option>
+          <option value="los-angeles">Los Angeles</option>
+          <option value="london">London</option>
+          <option value="paris">Paris</option>
+          <option value="tokyo">Tokyo</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <button class="filter-button" onclick="applyFilters()">
+          <i class="fas fa-filter"></i>
+          Apply Filters
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <i class="fas fa-users stat-icon"></i>
+        <div class="stat-value" id="totalProfiles">12,543</div>
+        <div class="stat-label">Total Profiles</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-images stat-icon"></i>
+        <div class="stat-value" id="totalImages">75,258</div>
+        <div class="stat-label">Total Images</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-map-marker-alt stat-icon"></i>
+        <div class="stat-value" id="totalLocations">37</div>
+        <div class="stat-label">Locations Covered</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-calendar-check stat-icon"></i>
+        <div class="stat-value" id="completionPercentage">50.2%</div>
+        <div class="stat-label">Overall Completion</div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="dashboard-card">
+        <div class="dashboard-card-title">
+          <i class="fas fa-map-marked-alt"></i>
+          Profiles by Location
+        </div>
+        <div class="chart-container" id="locationChart">
+          <!-- Chart will be rendered here -->
+        </div>
+      </div>
+      <div class="dashboard-card">
+        <div class="dashboard-card-title">
+          <i class="fas fa-birthday-cake"></i>
+          Age Distribution
+        </div>
+        <div class="chart-container" id="ageChart">
+          <!-- Chart will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-card">
+      <div class="dashboard-card-title">
+        <i class="fas fa-globe-americas"></i>
+        Ethnicity Distribution
+      </div>
+      <div class="ethnicity-grid" id="ethnicityGrid">
+        <!-- Ethnicity cards will be populated here -->
+      </div>
+    </div>
+
+    <div class="dashboard-card">
+      <div class="dashboard-card-title">
+        <i class="fas fa-sliders-h"></i>
+        Average Label Ranges
+      </div>
+      <div class="label-distribution" id="labelDistribution">
+        <!-- Label bars will be populated here -->
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Global variables
+    let darkTheme = false;
+    let locationChart = null;
+    let ageChart = null;
+
+    // DOM Ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize theme
+      initTheme();
+      
+      // Initialize charts
+      initCharts();
+      
+      // Populate ethnicity distribution
+      populateEthnicityGrid();
+      
+      // Populate label distribution
+      populateLabelDistribution();
+    });
+
+    // Initialize theme
+    function initTheme() {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        toggleTheme();
+      }
+    }
+
+    // Toggle between light and dark theme
+    function toggleTheme() {
+      darkTheme = !darkTheme;
+      document.body.classList.toggle('dark-theme', darkTheme);
+      const icon = document.querySelector('.theme-toggle i');
+      icon.className = darkTheme ? 'fas fa-sun' : 'fas fa-moon';
+      
+      // Update charts for theme
+      updateChartsTheme();
+    }
+
+    // Update charts to match theme
+    function updateChartsTheme() {
+      if (locationChart) {
+        locationChart.options.scales.x.grid.color = getComputedStyle(document.body).getPropertyValue('--chart-grid-color');
+        locationChart.options.scales.y.grid.color = getComputedStyle(document.body).getPropertyValue('--chart-grid-color');
+        locationChart.options.scales.x.ticks.color = getComputedStyle(document.body).getPropertyValue('--chart-text-color');
+        locationChart.options.scales.y.ticks.color = getComputedStyle(document.body).getPropertyValue('--chart-text-color');
+        locationChart.update();
+      }
+      
+      if (ageChart) {
+        ageChart.options.scales.x.grid.color = getComputedStyle(document.body).getPropertyValue('--chart-grid-color');
+        ageChart.options.scales.y.grid.color = getComputedStyle(document.body).getPropertyValue('--chart-grid-color');
+        ageChart.options.scales.x.ticks.color = getComputedStyle(document.body).getPropertyValue('--chart-text-color');
+        ageChart.options.scales.y.ticks.color = getComputedStyle(document.body).getPropertyValue('--chart-text-color');
+        ageChart.update();
+      }
+    }
+
+    // Navigate to another page
+    function navigateTo(page) {
+      switch (page) {
+        case 'dashboard':
+          window.location.href = '/';
+          break;
+        case 'data-center':
+          window.location.href = '/data-center';
+          break;
+        case 'logs':
+          window.location.href = '/logs';
+          break;
+        case 'stryke-center':
+          window.location.href = '/stryke-center';
+          break;
+        default:
+          console.error('Unknown page:', page);
+      }
+    }
+
+    // Initialize charts
+    function initCharts() {
+      // Profiles by Location chart
+      const locationChartCtx = document.getElementById('locationChart').getContext('2d');
+      locationChart = new Chart(locationChartCtx, {
+        type: 'bar',
+        data: {
+          labels: ['New York', 'Los Angeles', 'London', 'Paris', 'Tokyo', 'Sydney', 'Berlin', 'Toronto'],
+          datasets: [{
+            label: 'Profiles Count',
+            data: [1254, 986, 874, 752, 643, 521, 478, 412],
+            backgroundColor: getComputedStyle(document.body).getPropertyValue('--chart-color-1'),
+            borderColor: getComputedStyle(document.body).getPropertyValue('--chart-color-1'),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: getComputedStyle(document.body).getPropertyValue('--chart-grid-color')
+              },
+              ticks: {
+                color: getComputedStyle(document.body).getPropertyValue('--chart-text-color')
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: getComputedStyle(document.body).getPropertyValue('--chart-grid-color')
+              },
+              ticks: {
+                color: getComputedStyle(document.body).getPropertyValue('--chart-text-color')
+              }
+            }
+          }
+        }
+      });
+      
+      // Age Distribution chart
+      const ageChartCtx = document.getElementById('ageChart').getContext('2d');
+      ageChart = new Chart(ageChartCtx, {
+        type: 'line',
+        data: {
+          labels: ['18-20', '21-23', '24-26', '27-29', '30-32', '33-35', '36-40', '41+'],
+          datasets: [{
+            label: 'Number of Profiles',
+            data: [964, 1872, 2843, 2651, 1985, 1247, 743, 238],
+            fill: true,
+            backgroundColor: 'rgba(254, 60, 114, 0.1)',
+            borderColor: getComputedStyle(document.body).getPropertyValue('--chart-color-1'),
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: getComputedStyle(document.body).getPropertyValue('--chart-grid-color')
+              },
+              ticks: {
+                color: getComputedStyle(document.body).getPropertyValue('--chart-text-color')
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: getComputedStyle(document.body).getPropertyValue('--chart-grid-color')
+              },
+              ticks: {
+                color: getComputedStyle(document.body).getPropertyValue('--chart-text-color')
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Populate ethnicity grid
+    function populateEthnicityGrid() {
+      const ethnicityData = [
+        { name: 'European', percentage: 31.4 },
+        { name: 'East Asian', percentage: 18.7 },
+        { name: 'Mixed/Multiracial', percentage: 14.3 },
+        { name: 'Latin American', percentage: 10.8 },
+        { name: 'South Asian', percentage: 8.5 },
+        { name: 'Middle Eastern', percentage: 7.2 },
+        { name: 'Southeast Asian', percentage: 5.4 },
+        { name: 'Sub-Saharan African', percentage: 3.7 }
+      ];
+      
+      const ethnicityGrid = document.getElementById('ethnicityGrid');
+      ethnicityGrid.innerHTML = '';
+      
+      ethnicityData.forEach(ethnicity => {
+        const card = document.createElement('div');
+        card.className = 'ethnicity-card';
+        card.innerHTML = `
+          <div class="ethnicity-percentage">${ethnicity.percentage}%</div>
+          <div class="ethnicity-name">${ethnicity.name}</div>
+        `;
+        ethnicityGrid.appendChild(card);
+      });
+    }
+
+    // Populate label distribution
+    function populateLabelDistribution() {
+      const labelsData = [
+        { name: 'Intelligence', min: 65, max: 85 },
+        { name: 'Cooperativeness', min: 70, max: 90 },
+        { name: 'Celibacy', min: 40, max: 75 },
+        { name: 'Confidence', min: 60, max: 85 },
+        { name: 'Presentable', min: 75, max: 95 },
+        { name: 'Dominance', min: 45, max: 70 },
+        { name: 'Muscle %', min: 10, max: 20 },
+        { name: 'Fat %', min: 15, max: 25 }
+      ];
+      
+      const labelContainer = document.getElementById('labelDistribution');
+      labelContainer.innerHTML = '';
+      
+      labelsData.forEach(label => {
+        const row = document.createElement('div');
+        row.className = 'label-row';
+        row.innerHTML = `
+          <div class="label-name">${label.name}</div>
+          <div class="label-bar-container">
+            <div class="label-bar-min" style="width: ${label.min}%"></div>
+            <div class="label-bar-max" style="width: ${label.max - label.min}%; left: ${label.min}%"></div>
+          </div>
+          <div class="label-values">${label.min}% - ${label.max}%</div>
+        `;
+        labelContainer.appendChild(row);
+      });
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const milestoneFilter = document.getElementById('milestoneFilter').value;
+      const locationFilter = document.getElementById('locationFilter').value;
+      
+      // For demonstration, we'll simulate updating stats and charts
+      // In a real app, this would fetch new data from the API
+      
+      // Update stats with random variations
+      document.getElementById('totalProfiles').textContent = numberWithCommas(10000 + Math.floor(Math.random() * 5000));
+      document.getElementById('totalImages').textContent = numberWithCommas(60000 + Math.floor(Math.random() * 20000));
+      document.getElementById('totalLocations').textContent = 30 + Math.floor(Math.random() * 15);
+      document.getElementById('completionPercentage').textContent = (40 + Math.floor(Math.random() * 30)) + '%';
+      
+      // Update charts with random data
+      updateChartsWithRandomData();
+      
+      // Update ethnicity and labels with random variations
+      populateEthnicityGrid();
+      populateLabelDistribution();
+    }
+
+    // Update charts with random data
+    function updateChartsWithRandomData() {
+      // Update location chart
+      const locationData = Array.from({ length: 8 }, () => 400 + Math.floor(Math.random() * 2000));
+      locationChart.data.datasets[0].data = locationData;
+      locationChart.update();
+      
+      // Update age chart
+      const ageData = Array.from({ length: 8 }, () => 200 + Math.floor(Math.random() * 3000));
+      ageChart.data.datasets[0].data = ageData;
+      ageChart.update();
+    }
+
+    // Helper function to format numbers with commas
+    function numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+  </script>
+</body>
+</html>

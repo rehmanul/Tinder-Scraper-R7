@@ -1,0 +1,45 @@
+flowchart TB
+    subgraph Frontend["Web Interface"]
+        Dashboard["Dashboard"]
+        DataViewer["Data Viewer"]
+        LogsViewer["Logs Viewer"]
+        StatsViewer["Statistics"]
+    end
+
+    subgraph Backend["Python Backend"]
+        ScraperModule["Scraper Module"]
+        DataProcessor["Data Processor"]
+        GoogleIntegration["Google Sheets Integration"]
+        ErrorHandler["Error Handler"]
+        LocationRotator["Location Rotator"]
+    end
+
+    subgraph DataStorage["Data Storage"]
+        ImageStorage["Image Storage"]
+        ProfileData["Profile Data"]
+        GoogleSheets["Google Sheets"]
+    end
+    
+    subgraph TinderAPI["Tinder API Interaction"]
+        AuthModule["Authentication"]
+        ProfileFetcher["Profile Fetcher"]
+        ImageDownloader["Image Downloader"]
+    end
+
+    Dashboard --> ScraperModule
+    ScraperModule --> AuthModule
+    AuthModule --> ProfileFetcher
+    ProfileFetcher --> LocationRotator
+    LocationRotator --> ProfileFetcher
+    ProfileFetcher --> ImageDownloader
+    ImageDownloader --> ImageStorage
+    ProfileFetcher --> DataProcessor
+    DataProcessor --> ProfileData
+    DataProcessor --> GoogleIntegration
+    GoogleIntegration --> GoogleSheets
+    ErrorHandler --> GoogleIntegration
+    
+    DataViewer --> ProfileData
+    DataViewer --> ImageStorage
+    LogsViewer --> GoogleSheets
+    StatsViewer --> GoogleSheets

@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logs - Tinder Scraper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #fe3c72;
+      --primary-gradient: linear-gradient(135deg, #fe3c72, #ff655b);
+      --secondary-color: #424242;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --error-color: #dc3545;
+      --background-color: #ffffff;
+      --surface-color: #f8f9fa;
+      --text-primary: #212121;
+      --text-secondary: #616161;
+      --border-color: #e0e0e0;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --card-gradient: linear-gradient(135deg, rgba(254, 60, 114, 0.1), rgba(254, 60, 114, 0.02));
+    }
+
+    body.dark-theme {
+      --primary-color: #fe3c72;
+      --primary-gradient: linear-gradient(135deg, #fe3c72, #ff655b);
+      --secondary-color: #9aa0a6;
+      --background-color: #121212;
+      --surface-color: #1e1e1e;
+      --text-primary: #e8eaed;
+      --text-secondary: #9aa0a6;
+      --border-color: #3c4043;
+      --shadow-color: rgba(0, 0, 0, 0.3);
+      --card-gradient: linear-gradient(135deg, rgba(254, 60, 114, 0.15), rgba(254, 60, 114, 0.05));
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+    }
+
+    .header {
+      background-color: var(--surface-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 4px var(--shadow-color);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .logo i {
+      font-size: 24px;
+      color: var(--primary-color);
+    }
+
+    .logo h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-button {
+      background-color: transparent;
+      border: none;
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .nav-button:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-button.active {
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-button i {
+      font-size: 16px;
+    }
+
+    .main-content {
+      margin-top: 30px;
+      padding-bottom: 60px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab {
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .tab.active {
+      color: var(--primary-color);
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--primary-gradient);
+    }
+
+    .log-container {
+      background: var(--surface-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      overflow: hidden;
+      min-height: 400px;
+    }
+
+    .log-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background-color: rgba(254, 60, 114, 0.05);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .log-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .log-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .log-button {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .log-button:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .log-button.primary {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+    }
+
+    .log-button.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(254, 60, 114, 0.3);
+    }
+
+    .log-table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .log-table th {
+      position: sticky;
+      top: 0;
+      background-color: var(--surface-color);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .log-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .log-table tr:hover {
+      background-color: rgba(254, 60, 114, 0.05);
+    }
+
+    .log-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-success {
+      background-color: rgba(40, 167, 69, 0.1);
+      color: var(--success-color);
+    }
+
+    .status-warning {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: var(--warning-color);
+    }
+
+    .status-error {
+      background-color: rgba(220, 53, 69, 0.1);
+      color: var(--error-color);
+    }
+
+    .status-info {
+      background-color: rgba(23, 162, 184, 0.1);
+      color: #17a2b8;
+    }
+
+    .log-details {
+      max-width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .expand-button {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      cursor: pointer;
+      padding: 0;
+      font-size: 14px;
+      margin-left: 4px;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .page-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--surface-color);
+      color: var(--text-primary);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .page-button:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .page-button.active {
+      background: var(--primary-gradient);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .page-button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-container {
+      background-color: var(--surface-color);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 25px var(--shadow-color);
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+    }
+
+    .modal-backdrop.active .modal-container {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.3s ease;
+    }
+
+    .modal-close:hover {
+      color: var(--primary-color);
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-content {
+      color: var(--text-primary);
+    }
+
+    .modal-actions {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .modal-button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-button.secondary {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .modal-button.primary {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+    }
+
+    .modal-button.secondary:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .modal-button.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(254, 60, 114, 0.3);
+    }
+
+    .detail-row {
+      display: flex;
+      margin-bottom: 12px;
+    }
+
+    .detail-label {
+      font-weight: 500;
+      width: 120px;
+      color: var(--text-secondary);
+    }
+
+    .detail-value {
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .no-results {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .no-results-icon {
+      font-size: 48px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .no-results-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .no-results-message {
+      color: var(--text-secondary);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .filters {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .filter-input {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .filter-dropdown {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      font-size: 14px;
+      min-width: 120px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+
+      .filters {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .log-table th:nth-child(4),
+      .log-table td:nth-child(4) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="#" class="logo">
+        <i class="fas fa-fire"></i>
+        <h1>Tinder Scraper</h1>
+      </a>
+      <div class="nav-menu">
+        <button class="nav-button" onclick="navigateTo('dashboard')">
+          <i class="fas fa-chart-pie"></i>
+          Dashboard
+        </button>
+        <button class="nav-button" onclick="navigateTo('data-center')">
+          <i class="fas fa-database"></i>
+          Data Center
+        </button>
+        <button class="nav-button active" onclick="navigateTo('logs')">
+          <i class="fas fa-list"></i>
+          Logs
+        </button>
+        <button class="nav-button" onclick="navigateTo('stryke-center')">
+          <i class="fas fa-chart-bar"></i>
+          Statistics
+        </button>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <h2 class="section-title">Logs</h2>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('extraction-logs')">Extraction Logs</div>
+      <div class="tab" onclick="switchTab('error-logs')">Error Logs</div>
+    </div>
+
+    <div class="filters">
+      <div class="filter-item">
+        <label class="filter-label" for="dateFilter">Date Range:</label>
+        <input type="date" class="filter-input" id="dateFrom">
+        <span>to</span>
+        <input type="date" class="filter-input" id="dateTo">
+      </div>
+      <div class="filter-item">
+        <label class="filter-label" for="statusFilter">Status:</label>
+        <select class="filter-dropdown" id="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="SCRAPED">Scraped</option>
+          <option value="SKIPPED">Skipped</option>
+          <option value="LOCATION_CHANGE">Location Change</option>
+          <option value="ERROR">Error</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label class="filter-label" for="locationFilter">Location:</label>
+        <select class="filter-dropdown" id="locationFilter">
+          <option value="">All Locations</option>
+          <option value="New York">New York</option>
+          <option value="Los Angeles">Los Angeles</option>
+          <option value="London">London</option>
+          <option value="Paris">Paris</option>
+          <option value="Tokyo">Tokyo</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <button class="log-button primary" onclick="applyFilters()">
+          <i class="fas fa-filter"></i>
+          Apply Filters
+        </button>
+      </div>
+    </div>
+
+    <div class="log-container" id="extraction-logs-container">
+      <div class="log-toolbar">
+        <div class="log-title">Extraction Process Logs</div>
+        <div class="log-actions">
+          <button class="log-button" onclick="refreshLogs()">
+            <i class="fas fa-sync-alt"></i>
+            Refresh
+          </button>
+          <button class="log-button" onclick="exportLogs('extraction')">
+            <i class="fas fa-download"></i>
+            Export
+          </button>
+        </div>
+      </div>
+      <div class="log-table-container">
+        <table class="log-table" id="extraction-logs-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Profile ID</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Details</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="extraction-logs-body">
+            <!-- Table rows will be populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="log-container" id="error-logs-container" style="display: none;">
+      <div class="log-toolbar">
+        <div class="log-title">Error Logs</div>
+        <div class="log-actions">
+          <button class="log-button" onclick="refreshLogs()">
+            <i class="fas fa-sync-alt"></i>
+            Refresh
+          </button>
+          <button class="log-button" onclick="exportLogs('error')">
+            <i class="fas fa-download"></i>
+            Export
+          </button>
+        </div>
+      </div>
+      <div class="log-table-container">
+        <table class="log-table" id="error-logs-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Error Type</th>
+              <th>Location</th>
+              <th>Profile ID</th>
+              <th>Error Message</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="error-logs-body">
+            <!-- Table rows will be populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pagination" id="pagination">
+      <!-- Pagination buttons will be generated here -->
+    </div>
+  </main>
+
+  <!-- Log Details Modal -->
+  <div class="modal-backdrop" id="logDetailsModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Log Details</h3>
+        <button class="modal-close" onclick="closeModal('logDetailsModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-content" id="log-details-content">
+          <!-- Details will be populated dynamically -->
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-button secondary" onclick="closeModal('logDetailsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let darkTheme = false;
+    let currentTab = 'extraction-logs';
+    let currentPage = 1;
+    let totalPages = 1;
+    let extractionLogs = [];
+    let errorLogs = [];
+
+    // DOM Ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize theme
+      initTheme();
+      
+      // Set default date range for the last 7 days
+      const today = new Date();
+      const lastWeek = new Date();
+      lastWeek.setDate(today.getDate() - 7);
+      
+      document.getElementById('dateFrom').valueAsDate = lastWeek;
+      document.getElementById('dateTo').valueAsDate = today;
+      
+      // Load initial logs
+      loadLogs('extraction');
+    });
+
+    // Initialize theme
+    function initTheme() {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        toggleTheme();
+      }
+    }
+
+    // Toggle between light and dark theme
+    function toggleTheme() {
+      darkTheme = !darkTheme;
+      document.body.classList.toggle('dark-theme', darkTheme);
+      const icon = document.querySelector('.theme-toggle i');
+      icon.className = darkTheme ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Navigate to another page
+    function navigateTo(page) {
+      switch (page) {
+        case 'dashboard':
+          window.location.href = '/';
+          break;
+        case 'data-center':
+          window.location.href = '/data-center';
+          break;
+        case 'logs':
+          window.location.href = '/logs';
+          break;
+        case 'stryke-center':
+          window.location.href = '/stryke-center';
+          break;
+        default:
+          console.error('Unknown page:', page);
+      }
+    }
+
+    // Switch between tabs
+    function switchTab(tab) {
+      currentTab = tab;
+      currentPage = 1;
+      
+      // Update tab UI
+      document.querySelectorAll('.tab').forEach(tabEl => {
+        tabEl.classList.toggle('active', tabEl.textContent.toLowerCase().includes(tab));
+      });
+      
+      // Show/hide containers
+      document.getElementById('extraction-logs-container').style.display = tab === 'extraction-logs' ? 'block' : 'none';
+      document.getElementById('error-logs-container').style.display = tab === 'error-logs' ? 'block' : 'none';
+      
+      // Load logs for the selected tab
+      loadLogs(tab === 'extraction-logs' ? 'extraction' : 'error');
+    }
+
+    // Load logs
+    function loadLogs(type, page = 1) {
+      // For demonstration, we'll use mock data
+      // In a real app, this would be an API call
+      
+      const tableBody = document.getElementById(`${type}-logs-body`);
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div style="display: flex; justify-content: center; padding: 20px;">
+              <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+            </div>
+          </td>
+        </tr>
+      `;
+      
+      // Simulate API delay
+      setTimeout(() => {
+        if (type === 'extraction') {
+          extractionLogs = generateMockExtractionLogs(50);
+          renderExtractionLogs(extractionLogs, page);
+        } else {
+          errorLogs = generateMockErrorLogs(20);
+          renderErrorLogs(errorLogs, page);
+        }
+        
+        // Update pagination
+        renderPagination(page, type === 'extraction' ? 5 : 2);
+      }, 500);
+    }
+
+    // Generate mock extraction logs
+    function generateMockExtractionLogs(count) {
+      const logs = [];
+      const statuses = ['SCRAPED', 'SKIPPED', 'LOCATION_CHANGE'];
+      const locations = ['New York, USA', 'Los Angeles, USA', 'London, UK', 'Paris, France', 'Tokyo, Japan'];
+      
+      for (let i = 0; i < count; i++) {
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        const location = locations[Math.floor(Math.random() * locations.length)];
+        const timestamp = new Date();
+        timestamp.setMinutes(timestamp.getMinutes() - i * 5);
+        
+        let profileId = 'N/A';
+        let details = '';
+        
+        if (status === 'SCRAPED') {
+          profileId = `00${i + 1}`.slice(-5);
+          const imageCount = Math.floor(Math.random() * 5) + 5;
+          details = `Successfully scraped ${imageCount} images from profile`;
+        } else if (status === 'SKIPPED') {
+          profileId = `00${i + 50}`.slice(-5);
+          details = 'Insufficient number of images (less than 5)';
+        } else if (status === 'LOCATION_CHANGE') {
+          details = `Changed location to ${location}`;
+        }
+        
+        logs.push({
+          id: `log-${i}`,
+          timestamp: timestamp.toISOString(),
+          profileId: profileId,
+          location: location,
+          status: status,
+          details: details
+        });
+      }
+      
+      return logs;
+    }
+
+    // Generate mock error logs
+    function generateMockErrorLogs(count) {
+      const logs = [];
+      const errorTypes = ['Login Error', 'Network Error', 'API Error', 'Parsing Error', 'Image Download Error'];
+      const locations = ['New York, USA', 'Los Angeles, USA', 'London, UK', 'Paris, France', 'Tokyo, Japan'];
+      
+      for (let i = 0; i < count; i++) {
+        const errorType = errorTypes[Math.floor(Math.random() * errorTypes.length)];
+        const location = locations[Math.floor(Math.random() * locations.length)];
+        const timestamp = new Date();
+        timestamp.setHours(timestamp.getHours() - i);
+        
+        let profileId = Math.random() > 0.5 ? `00${i + 1}`.slice(-5) : null;
+        let errorMessage = '';
+        
+        switch (errorType) {
+          case 'Login Error':
+            errorMessage = 'Failed to authenticate with Tinder. Invalid credentials or session expired.';
+            break;
+          case 'Network Error':
+            errorMessage = 'Request timed out after 30 seconds. Check internet connection.';
+            break;
+          case 'API Error':
+            errorMessage = 'Tinder API returned status code 429: Too Many Requests. Rate limit exceeded.';
+            break;
+          case 'Parsing Error':
+            errorMessage = 'Failed to parse profile data. Unexpected response format.';
+            break;
+          case 'Image Download Error':
+            errorMessage = 'Failed to download image. Server returned 404 Not Found.';
+            break;
+        }
+        
+        logs.push({
+          id: `error-${i}`,
+          timestamp: timestamp.toISOString(),
+          errorType: errorType,
+          location: location,
+          profileId: profileId,
+          errorMessage: errorMessage
+        });
+      }
+      
+      return logs;
+    }
+
+    // Render extraction logs
+    function renderExtractionLogs(logs, page = 1) {
+      const tableBody = document.getElementById('extraction-logs-body');
+      const itemsPerPage = 10;
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedLogs = logs.slice(startIndex, endIndex);
+      
+      if (logs.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="no-results">
+                <i class="fas fa-search no-results-icon"></i>
+                <div class="no-results-title">No logs found</div>
+                <div class="no-results-message">There are no extraction logs matching your filters.</div>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tableBody.innerHTML = '';
+      
+      paginatedLogs.forEach(log => {
+        const row = document.createElement('tr');
+        
+        // Format timestamp
+        const date = new Date(log.timestamp);
+        const formattedDate = date.toLocaleString();
+        
+        // Create status badge class
+        let statusClass = 'status-info';
+        if (log.status === 'SCRAPED') statusClass = 'status-success';
+        if (log.status === 'SKIPPED') statusClass = 'status-warning';
+        if (log.status === 'ERROR') statusClass = 'status-error';
+        
+        row.innerHTML = `
+          <td>${formattedDate}</td>
+          <td>${log.profileId}</td>
+          <td>${log.location}</td>
+          <td>
+            <span class="log-status ${statusClass}">
+              ${log.status}
+            </span>
+          </td>
+          <td class="log-details">
+            ${log.details}
+            ${log.details.length > 30 ? '<button class="expand-button" onclick="viewLogDetails(\'extraction\', \'' + log.id + '\')">More</button>' : ''}
+          </td>
+          <td>
+            <button class="log-button" onclick="viewLogDetails('extraction', '${log.id}')">
+              <i class="fas fa-eye"></i>
+            </button>
+          </td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Render error logs
+    function renderErrorLogs(logs, page = 1) {
+      const tableBody = document.getElementById('error-logs-body');
+      const itemsPerPage = 10;
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedLogs = logs.slice(startIndex, endIndex);
+      
+      if (logs.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="no-results">
+                <i class="fas fa-check-circle no-results-icon"></i>
+                <div class="no-results-title">No errors found</div>
+                <div class="no-results-message">There are no error logs matching your filters.</div>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tableBody.innerHTML = '';
+      
+      paginatedLogs.forEach(log => {
+        const row = document.createElement('tr');
+        
+        // Format timestamp
+        const date = new Date(log.timestamp);
+        const formattedDate = date.toLocaleString();
+        
+        row.innerHTML = `
+          <td>${formattedDate}</td>
+          <td>${log.errorType}</td>
+          <td>${log.location}</td>
+          <td>${log.profileId || 'N/A'}</td>
+          <td class="log-details">
+            ${log.errorMessage}
+            ${log.errorMessage.length > 30 ? '<button class="expand-button" onclick="viewLogDetails(\'error\', \'' + log.id + '\')">More</button>' : ''}
+          </td>
+          <td>
+            <button class="log-button" onclick="viewLogDetails('error', '${log.id}')">
+              <i class="fas fa-eye"></i>
+            </button>
+          </td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Render pagination
+    function renderPagination(currentPage, totalPages) {
+      const paginationEl = document.getElementById('pagination');
+      paginationEl.innerHTML = '';
+      
+      // Previous button
+      const prevButton = document.createElement('button');
+      prevButton.className = `page-button ${currentPage === 1 ? 'disabled' : ''}`;
+      prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      prevButton.disabled = currentPage === 1;
+      prevButton.onclick = () => {
+        if (currentPage > 1) {
+          goToPage(currentPage - 1);
+        }
+      };
+      paginationEl.appendChild(prevButton);
+      
+      // Page buttons
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, startPage + 4);
+      
+      for (let i = startPage; i <= endPage; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.className = `page-button ${i === currentPage ? 'active' : ''}`;
+        pageButton.textContent = i;
+        pageButton.onclick = () => goToPage(i);
+        paginationEl.appendChild(pageButton);
+      }
+      
+      // Next button
+      const nextButton = document.createElement('button');
+      nextButton.className = `page-button ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      nextButton.disabled = currentPage === totalPages;
+      nextButton.onclick = () => {
+        if (currentPage < totalPages) {
+          goToPage(currentPage + 1);
+        }
+      };
+      paginationEl.appendChild(nextButton);
+    }
+
+    // Go to specific page
+    function goToPage(page) {
+      currentPage = page;
+      if (currentTab === 'extraction-logs') {
+        renderExtractionLogs(extractionLogs, page);
+      } else {
+        renderErrorLogs(errorLogs, page);
+      }
+      
+      renderPagination(page, currentTab === 'extraction-logs' ? 5 : 2);
+      
+      // Scroll to top of logs
+      document.querySelector('.log-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo = document.getElementById('dateTo').value;
+      const statusFilter = document.getElementById('statusFilter').value;
+      const locationFilter = document.getElementById('locationFilter').value;
+      
+      // In a real app, this would send filter params to the API
+      // For demo, we'll just reload the current tab's logs
+      loadLogs(currentTab === 'extraction-logs' ? 'extraction' : 'error', 1);
+    }
+
+    // Refresh logs
+    function refreshLogs() {
+      loadLogs(currentTab === 'extraction-logs' ? 'extraction' : 'error', currentPage);
+    }
+
+    // Export logs
+    function exportLogs(type) {
+      // In a real app, this would trigger a download
+      alert(`Exporting ${type} logs as CSV...`);
+    }
+
+    // View log details
+    function viewLogDetails(type, logId) {
+      // Find the log entry
+      let log;
+      if (type === 'extraction') {
+        log = extractionLogs.find(log => log.id === logId);
+        if (log) {
+          document.getElementById('modal-title').textContent = 'Extraction Log Details';
+          document.getElementById('log-details-content').innerHTML = `
+            <div class="detail-row">
+              <div class="detail-label">Timestamp:</div>
+              <div class="detail-value">${new Date(log.timestamp).toLocaleString()}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Profile ID:</div>
+              <div class="detail-value">${log.profileId}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Location:</div>
+              <div class="detail-value">${log.location}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Status:</div>
+              <div class="detail-value">
+                <span class="log-status ${log.status === 'SCRAPED' ? 'status-success' : log.status === 'SKIPPED' ? 'status-warning' : 'status-info'}">
+                  ${log.status}
+                </span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Details:</div>
+              <div class="detail-value">${log.details}</div>
+            </div>
+          `;
+        }
+      } else {
+        log = errorLogs.find(log => log.id === logId);
+        if (log) {
+          document.getElementById('modal-title').textContent = 'Error Log Details';
+          document.getElementById('log-details-content').innerHTML = `
+            <div class="detail-row">
+              <div class="detail-label">Timestamp:</div>
+              <div class="detail-value">${new Date(log.timestamp).toLocaleString()}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Error Type:</div>
+              <div class="detail-value">${log.errorType}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Location:</div>
+              <div class="detail-value">${log.location}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Profile ID:</div>
+              <div class="detail-value">${log.profileId || 'N/A'}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Error Message:</div>
+              <div class="detail-value">${log.errorMessage}</div>
+            </div>
+          `;
+        }
+      }
+      
+      // Open modal
+      showModal('logDetailsModal');
+    }
+
+    // Show modal
+    function showModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('active');
+    }
+
+    // Close modal
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('active');
+    }
+  </script>
+</body>
+</html>

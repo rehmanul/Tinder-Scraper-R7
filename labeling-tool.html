@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Labeling Tool - Tinder Scraper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #fe3c72;
+      --primary-gradient: linear-gradient(135deg, #fe3c72, #ff655b);
+      --secondary-color: #424242;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --error-color: #dc3545;
+      --background-color: #ffffff;
+      --surface-color: #f8f9fa;
+      --text-primary: #212121;
+      --text-secondary: #616161;
+      --border-color: #e0e0e0;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --card-gradient: linear-gradient(135deg, rgba(254, 60, 114, 0.1), rgba(254, 60, 114, 0.02));
+    }
+
+    body.dark-theme {
+      --primary-color: #fe3c72;
+      --primary-gradient: linear-gradient(135deg, #fe3c72, #ff655b);
+      --secondary-color: #9aa0a6;
+      --background-color: #121212;
+      --surface-color: #1e1e1e;
+      --text-primary: #e8eaed;
+      --text-secondary: #9aa0a6;
+      --border-color: #3c4043;
+      --shadow-color: rgba(0, 0, 0, 0.3);
+      --card-gradient: linear-gradient(135deg, rgba(254, 60, 114, 0.15), rgba(254, 60, 114, 0.05));
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+    }
+
+    .header {
+      background-color: var(--surface-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 4px var(--shadow-color);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .logo i {
+      font-size: 24px;
+      color: var(--primary-color);
+    }
+
+    .logo h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-button {
+      background-color: transparent;
+      border: none;
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .nav-button:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-button.active {
+      background-color: rgba(254, 60, 114, 0.1);
+      color: var(--primary-color);
+    }
+
+    .nav-button i {
+      font-size: 16px;
+    }
+
+    .main-content {
+      margin-top: 30px;
+      padding-bottom: 60px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+    }
+
+    .status-bar {
+      background-color: var(--surface-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px var(--shadow-color);
+    }
+
+    .status-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .status-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .status-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .status-button {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .status-button:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .status-button.primary {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+    }
+
+    .status-button.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(254, 60, 114, 0.3);
+    }
+
+    .labeling-container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 24px;
+    }
+
+    .profile-browser {
+      background-color: var(--surface-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      overflow: hidden;
+    }
+
+    .browser-toolbar {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .browser-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .browser-filters {
+      display: flex;
+      gap: 12px;
+    }
+
+    .filter-dropdown {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      font-size: 14px;
+      min-width: 120px;
+    }
+
+    .profile-list {
+      max-height: 600px;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .profile-item {
+      display: flex;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .profile-item:hover {
+      background-color: rgba(254, 60, 114, 0.05);
+    }
+
+    .profile-item.active {
+      background-color: rgba(254, 60, 114, 0.1);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .profile-item-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 12px;
+    }
+
+    .profile-item-info {
+      flex: 1;
+    }
+
+    .profile-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .profile-item-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .profile-item-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-unlabeled {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: var(--warning-color);
+    }
+
+    .status-labeled {
+      background-color: rgba(40, 167, 69, 0.1);
+      color: var(--success-color);
+    }
+
+    .status-skipped {
+      background-color: rgba(108, 117, 125, 0.1);
+      color: var(--secondary-color);
+    }
+
+    .profile-editor {
+      background-color: var(--surface-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .editor-toolbar {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .editor-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .editor-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .profile-viewer {
+      width: 50%;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profile-main-image {
+      height: 400px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-main-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .image-controls {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+
+    .image-nav {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .image-nav:hover {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .image-nav:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .image-counter {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .profile-thumbnails {
+      padding: 12px;
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      background-color: var(--surface-color);
+    }
+
+    .profile-thumbnail {
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      object-fit: cover;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.3s ease;
+    }
+
+    .profile-thumbnail:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    .profile-thumbnail.active {
+      opacity: 1;
+      border: 2px solid var(--primary-color);
+    }
+
+    .profile-details {
+      padding: 16px;
+      overflow-y: auto;
+      max-height: 200px;
+    }
+
+    .profile-detail {
+      margin-bottom: 12px;
+    }
+
+    .profile-detail-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .profile-detail-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .labels-editor {
+      width: 50%;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .labels-section {
+      margin-bottom: 24px;
+    }
+
+    .labels-section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .labels-section-title i {
+      color: var(--primary-color);
+      font-size: 18px;
+    }
+
+    .label-field {
+      margin-bottom: 16px;
+    }
+
+    .label-field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .label-field-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .label-field-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .range-slider {
+      position: relative;
+      height: 36px;
+      padding-top: 12px;
+    }
+
+    .range-track {
+      position: absolute;
+      top: 16px;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background-color: rgba(254, 60, 114, 0.1);
+      border-radius: 3px;
+    }
+
+    .range-fill {
+      position: absolute;
+      top: 16px;
+      left: 0;
+      height: 6px;
+      background: var(--primary-gradient);
+      border-radius: 3px;
+    }
+
+    .range-handle {
+      position: absolute;
+      top: 10px;
+      width: 18px;
+      height: 18px;
+      background-color: white;
+      border: 2px solid var(--primary-color);
+      border-radius: 50%;
+      cursor: pointer;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .range-handle:hover {
+      transform: translateX(-50%) scale(1.2);
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .ethnicity-items {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .ethnicity-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ethnicity-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .ethnicity-range {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ethnicity-input {
+      width: 40px;
+      padding: 4px;
+      text-align: center;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      font-size: 14px;
+      background-color: var(--background-color);
+      color: var(--text-primary);
+    }
+
+    .gender-items {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .gender-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .gender-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .gender-range {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gender-input {
+      width: 40px;
+      padding: 4px;
+      text-align: center;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      font-size: 14px;
+      background-color: var(--background-color);
+      color: var(--text-primary);
+    }
+
+    .editor-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .editor-button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .editor-button.secondary {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .editor-button.secondary:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .editor-button.primary {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+    }
+
+    .editor-button.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(254, 60, 114, 0.3);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .empty-message {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background-color: rgba(254, 60, 114, 0.1);
+    }
+
+    @media (max-width: 1200px) {
+      .labeling-container {
+        grid-template-columns: 1fr;
+      }
+
+      .editor-content {
+        flex-direction: column;
+      }
+
+      .profile-viewer, .labels-editor {
+        width: 100%;
+      }
+
+      .profile-viewer {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .status-bar {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .status-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .ethnicity-items, .gender-items {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="#" class="logo">
+        <i class="fas fa-fire"></i>
+        <h1>Tinder Scraper</h1>
+      </a>
+      <div class="nav-menu">
+        <button class="nav-button" onclick="navigateTo('dashboard')">
+          <i class="fas fa-chart-pie"></i>
+          Dashboard
+        </button>
+        <button class="nav-button" onclick="navigateTo('data-center')">
+          <i class="fas fa-database"></i>
+          Data Center
+        </button>
+        <button class="nav-button" onclick="navigateTo('logs')">
+          <i class="fas fa-list"></i>
+          Logs
+        </button>
+        <button class="nav-button" onclick="navigateTo('stryke-center')">
+          <i class="fas fa-chart-bar"></i>
+          Statistics
+        </button>
+        <button class="nav-button active">
+          <i class="fas fa-tags"></i>
+          Labeling
+        </button>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <h2 class="section-title">Profile Labeling Tool</h2>
+
+    <div class="status-bar">
+      <div class="status-info">
+        <div class="status-item">
+          <div class="status-label">Total Profiles:</div>
+          <div class="status-value">12,543</div>
+        </div>
+        <div class="status-item">
+          <div class="status-label">Unlabeled:</div>
+          <div class="status-value">5,621</div>
+        </div>
+        <div class="status-item">
+          <div class="status-label">Labeled:</div>
+          <div class="status-value">6,922</div>
+        </div>
+        <div class="status-item">
+          <div class="status-label">Completion:</div>
+          <div class="status-value">55.2%</div>
+        </div>
+      </div>
+      <div class="status-actions">
+        <button class="status-button" onclick="refreshProfiles()">
+          <i class="fas fa-sync-alt"></i>
+          Refresh
+        </button>
+        <button class="status-button primary" onclick="exportLabels()">
+          <i class="fas fa-download"></i>
+          Export Labels
+        </button>
+      </div>
+    </div>
+
+    <div class="labeling-container">
+      <div class="profile-browser">
+        <div class="browser-toolbar">
+          <div class="browser-title">Profile Browser</div>
+          <div class="browser-filters">
+            <select class="filter-dropdown" id="statusFilter">
+              <option value="all">All Statuses</option>
+              <option value="unlabeled">Unlabeled</option>
+              <option value="labeled">Labeled</option>
+              <option value="skipped">Skipped</option>
+            </select>
+            <select class="filter-dropdown" id="locationFilter">
+              <option value="all">All Locations</option>
+              <option value="new-york">New York</option>
+              <option value="los-angeles">Los Angeles</option>
+              <option value="london">London</option>
+              <option value="paris">Paris</option>
+              <option value="tokyo">Tokyo</option>
+            </select>
+          </div>
+        </div>
+        <div class="profile-list" id="profileList">
+          <!-- Profile items will be loaded here -->
+        </div>
+      </div>
+
+      <div class="profile-editor" id="profileEditor">
+        <div class="editor-toolbar">
+          <div class="editor-title" id="editorTitle">Profile Editor</div>
+          <div class="editor-actions">
+            <button class="status-button" onclick="skipProfile()">
+              <i class="fas fa-forward"></i>
+              Skip
+            </button>
+            <button class="status-button" onclick="resetLabels()">
+              <i class="fas fa-undo"></i>
+              Reset
+            </button>
+          </div>
+        </div>
+        <div class="editor-content">
+          <div class="profile-viewer">
+            <div class="profile-main-image">
+              <img id="mainImage" src="https://via.placeholder.com/800x600" alt="Profile Image">
+              <div class="image-controls">
+                <button class="image-nav" id="prevImageBtn" onclick="prevImage()">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="image-nav" id="nextImageBtn" onclick="nextImage()">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+              <div class="image-counter">
+                <span id="currentImageIndex">1</span> / <span id="totalImages">5</span>
+              </div>
+            </div>
+            <div class="profile-thumbnails" id="imageThumbnails">
+              <!-- Image thumbnails will be loaded here -->
+            </div>
+            <div class="profile-details">
+              <div class="profile-detail">
+                <div class="profile-detail-label">Profile ID</div>
+                <div class="profile-detail-value" id="profileId">00001</div>
+              </div>
+              <div class="profile-detail">
+                <div class="profile-detail-label">Location</div>
+                <div class="profile-detail-value" id="profileLocation">New York, USA</div>
+              </div>
+              <div class="profile-detail">
+                <div class="profile-detail-label">Scraped At</div>
+                <div class="profile-detail-value" id="scrapedAt">2023-03-07 14:32:15</div>
+              </div>
+              <div class="profile-detail">
+                <div class="profile-detail-label">Bio</div>
+                <div class="profile-detail-value" id="profileBio">No bio available</div>
+              </div>
+            </div>
+          </div>
+          <div class="labels-editor">
+            <div class="labels-section">
+              <div class="labels-section-title">
+                <i class="fas fa-sliders-h"></i>
+                Basic Attributes
+              </div>
+              
+              <div class="label-field">
+                <div class="label-field-header">
+                  <div class="label-field-name">Age Range</div>
+                  <div class="label-field-value">
+                    <span id="ageMin">25</span> - <span id="ageMax">30</span> years
+                  </div>
+                </div>
+                <div class="range-slider">
+                  <div class="range-track"></div>
+                  <div class="range-fill" id="ageFill" style="width: 20%; left: 30%"></div>
+                  <div class="range-handle" id="ageMinHandle" style="left: 30%"></div>
+                  <div class="range-handle" id="ageMaxHandle" style="left: 50%"></div>
+                </div>
+                <div class="range-labels">
+                  <div>18</div>
+                  <div>50</div>
+                </div>
+              </div>
+              
+              <div class="label-field">
+                <div class="label-field-header">
+                  <div class="label-field-name">Height Range</div>
+                  <div class="label-field-value">
+                    <span id="heightMin">165</span> - <span id="heightMax">175</span> cm
+                  </div>
+                </div>
+                <div class="range-slider">
+                  <div class="range-track"></div>
+                  <div class="range-fill" id="heightFill" style="width: 15%; left: 42%"></div>
+                  <div class="range-handle" id="heightMinHandle" style="left: 42%"></div>
+                  <div class="range-handle" id="heightMaxHandle" style="left: 57%"></div>
+                </div>
+                <div class="range-labels">
+                  <div>140</div>
+                  <div>200</div>
+                </div>
+              </div>
+              
+              <div class="label-field">
+                <div class="label-field-header">
+                  <div class="label-field-name">Weight Range</div>
+                  <div class="label-field-value">
+                    <span id="weightMin">55</span> - <span id="weightMax">65</span> kg
+                  </div>
+                </div>
+                <div class="range-slider">
+                  <div class="range-track"></div>
+                  <div class="range-fill" id="weightFill" style="width: 17%; left: 31%"></div>
+                  <div class="range-handle" id="weightMinHandle" style="left: 31%"></div>
+                  <div class="range-handle" id="weightMaxHandle" style="left: 48%"></div>
+                </div>
+                <div class="range-labels">
+                  <div>40</div>
+                  <div>100</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="labels-section">
+              <div class="labels-section-title">
+                <i class="fas fa-venus-mars"></i>
+                Gender
+              </div>
+              
+              <div class="gender-items">
+                <div class="gender-item">
+                  <div class="gender-name">Female</div>
+                  <div class="gender-range">
+                    <input type="number" class="gender-input" id="femaleMin" value="85" min="0" max="100">
+                    -
+                    <input type="number" class="gender-input" id="femaleMax" value="95" min="0" max="100">
+                    %
+                  </div>
+                </div>
+                <div class="gender-item">
+                  <div class="gender-name">Male</div>
+                  <div class="gender-range">
+                    <input type="number" class="gender-input" id="maleMin" value="5" min="0" max="100">
+                    -
+                    <input type="number" class="gender-input" id="maleMax" value="15" min="0" max="100">
+                    %
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="labels-section">
+              <div class="labels-section-title">
+                <i class="fas fa-brain"></i>
+                Personality Attributes
+              </div>
+              
+              <div class="label-field">
+                <div class="label-field-header">
+                  <div class="label-field-name">Intelligence</div>
+                  <div class="label-field-value">
+                    <span id="intelligenceMin">75</span> - <span id="intelligenceMax">90</span>%
+                  </div>
+                </div>
+                <div class="range-slider">
+                  <div class="range-track"></div>
+                  <div class="range-fill" id="intelligenceFill" style="width: 15%; left: 75%"></div>
+                  <div class="range-handle" id="intelligenceMinHandle" style="left: 75%"></div>
+                  <div class="range-handle" id="intelligenceMaxHandle" style="left: 90%"></div>
+                </div>
+                <div class="range-labels">
+                  <div>0%</div>
+                  <div>100%</div>
+                </div>
+              </div>
+              
+              <div class="label-field">
+                <div class="label-field-header">
+                  <div class="label-field-name">Cooperativeness</div>
+                  <div class="label-field-value">
+                    <span id="cooperativenessMin">60</span> - <span id="cooperativenessMax">85</span>%
+                  </div>
+                </div>
+                <div class="range-slider">
+                  <div class="range-track"></div>
+                  <div class="range-fill" id="cooperativenessFill" style="width: 25%; left: 60%"></div>
+                  <div class="range-handle" id="cooperativenessMinHandle" style="left: 60%"></div>
+                  <div class="range-handle" id="cooperativenessMaxHandle" style="left: 85%"></div>
+                </div>
+                <div class="range-labels">
+                  <div>0%</div>
+                  <div>100%</div>
+                </div>
+              </div>
+              
+              <div class="label-field">
+                <div class="label-field-header">
+                  <div class="label-field-name">Confidence</div>
+                  <div class="label-field-value">
+                    <span id="confidenceMin">70</span> - <span id="confidenceMax">90</span>%
+                  </div>
+                </div>
+                <div class="range-slider">
+                  <div class="range-track"></div>
+                  <div class="range-fill" id="confidenceFill" style="width: 20%; left: 70%"></div>
+                  <div class="range-handle" id="confidenceMinHandle" style="left: 70%"></div>
+                  <div class="range-handle" id="confidenceMaxHandle" style="left: 90%"></div>
+                </div>
+                <div class="range-labels">
+                  <div>0%</div>
+                  <div>100%</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="labels-section">
+              <div class="labels-section-title">
+                <i class="fas fa-globe-americas"></i>
+                Ethnicity
+              </div>
+              
+              <div class="ethnicity-items">
+                <div class="ethnicity-item">
+                  <div class="ethnicity-name">European</div>
+                  <div class="ethnicity-range">
+                    <input type="number" class="ethnicity-input" id="europeanMin" value="75" min="0" max="100">
+                    -
+                    <input type="number" class="ethnicity-input" id="europeanMax" value="90" min="0" max="100">
+                    %
+                  </div>
+                </div>
+                <div class="ethnicity-item">
+                  <div class="ethnicity-name">East Asian</div>
+                  <div class="ethnicity-range">
+                    <input type="number" class="ethnicity-input" id="eastAsianMin" value="5" min="0" max="100">
+                    -
+                    <input type="number" class="ethnicity-input" id="eastAsianMax" value="15" min="0" max="100">
+                    %
+                  </div>
+                </div>
+                <div class="ethnicity-item">
+                  <div class="ethnicity-name">South Asian</div>
+                  <div class="ethnicity-range">
+                    <input type="number" class="ethnicity-input" id="southAsianMin" value="3" min="0" max="100">
+                    -
+                    <input type="number" class="ethnicity-input" id="southAsianMax" value="8" min="0" max="100">
+                    %
+                  </div>
+                </div>
+                <div class="ethnicity-item">
+                  <div class="ethnicity-name">African</div>
+                  <div class="ethnicity-range">
+                    <input type="number" class="ethnicity-input" id="africanMin" value="2" min="0" max="100">
+                    -
+                    <input type="number" class="ethnicity-input" id="africanMax" value="7" min="0" max="100">
+                    %
+                  </div>
+                </div>
+                <div class="ethnicity-item">
+                  <div class="ethnicity-name">Middle Eastern</div>
+                  <div class="ethnicity-range">
+                    <input type="number" class="ethnicity-input" id="middleEasternMin" value="3" min="0" max="100">
+                    -
+                    <input type="number" class="ethnicity-input" id="middleEasternMax" value="8" min="0" max="100">
+                    %
+                  </div>
+                </div>
+                <div class="ethnicity-item">
+                  <div class="ethnicity-name">Mixed/Other</div>
+                  <div class="ethnicity-range">
+                    <input type="number" class="ethnicity-input" id="mixedMin" value="10" min="0" max="100">
+                    -
+                    <input type="number" class="ethnicity-input" id="mixedMax" value="20" min="0" max="100">
+                    %
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="editor-footer">
+          <button class="editor-button secondary" onclick="skipProfile()">
+            <i class="fas fa-forward"></i>
+            Skip for Later
+          </button>
+          <button class="editor-button primary" onclick="saveLabels()">
+            <i class="fas fa-save"></i>
+            Save Labels
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Global variables
+    let darkTheme = false;
+    let profiles = [];
+    let currentProfileIndex = 0;
+    let currentImageIndex = 0;
+    let isLabelsDirty = false;
+    
+    // DOM Ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize theme
+      initTheme();
+      
+      // Load profiles
+      loadProfiles();
+      
+      // Initialize drag events for range sliders
+      initRangeSliders();
+      
+      // Setup form change detection
+      setupFormChangeDetection();
+    });
+    
+    // Initialize theme
+    function initTheme() {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        toggleTheme();
+      }
+    }
+    
+    // Toggle between light and dark theme
+    function toggleTheme() {
+      darkTheme = !darkTheme;
+      document.body.classList.toggle('dark-theme', darkTheme);
+      const icon = document.querySelector('.theme-toggle i');
+      icon.className = darkTheme ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    
+    // Navigate to another page
+    function navigateTo(page) {
+      if (isLabelsDirty) {
+        const confirmed = confirm('You have unsaved changes. Do you want to leave this page?');
+        if (!confirmed) {
+          return;
+        }
+      }
+      
+      switch (page) {
+        case 'dashboard':
+          window.location.href = '/';
+          break;
+        case 'data-center':
+          window.location.href = '/data-center';
+          break;
+        case 'logs':
+          window.location.href = '/logs';
+          break;
+        case 'stryke-center':
+          window.location.href = '/stryke-center';
+          break;
+        default:
+          console.error('Unknown page:', page);
+      }
+    }
+    
+    // Load profiles
+    function loadProfiles() {
+      // For demonstration purposes, we'll generate mock data
+      // In a real application, this would fetch from an API
+      
+      // Generate mock profiles
+      profiles = [];
+      for (let i = 0; i < 20; i++) {
+        const profileId = `${i + 1}`.padStart(5, '0');
+        const locations = ['New York, USA', 'Los Angeles, USA', 'London, UK', 'Paris, France', 'Tokyo, Japan'];
+        const location = locations[Math.floor(Math.random() * locations.length)];
+        const status = i % 3 === 0 ? 'unlabeled' : (i % 3 === 1 ? 'labeled' : 'skipped');
+        
+        profiles.push({
+          id: profileId,
+          location: location,
+          status: status,
+          scrapedAt: '2023-03-07 14:32:15',
+          bio: i % 2 === 0 ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' : 'No bio available',
+          images: Array.from({ length: 5 + Math.floor(Math.random() * 4) }, (_, j) => ({
+            id: `${j + 1}`.padStart(6, '0'),
+            url: `https://source.unsplash.com/random/300x400?portrait&sig=${profileId}${j}`
+          })),
+          labels: generateMockLabels()
+        });
+      }
+      
+      renderProfileList();
+      
+      // If we have profiles, load the first one
+      if (profiles.length > 0) {
+        loadProfile(0);
+      } else {
+        showEmptyState();
+      }
+    }
+    
+    // Generate mock labels for a profile
+    function generateMockLabels() {
+      return {
+        age: [25, 30],
+        height: [165, 175],
+        weight: [55, 65],
+        gender: [
+          { name: 'female', value: [85, 95] },
+          { name: 'male', value: [5, 15] }
+        ],
+        intelligence: [75, 90],
+        cooperativeness: [60, 85],
+        confidence: [70, 90],
+        ethnicity: [
+          { name: 'European', value: [75, 90] },
+          { name: 'East Asian', value: [5, 15] },
+          { name: 'South Asian', value: [3, 8] },
+          { name: 'African', value: [2, 7] },
+          { name: 'Middle Eastern', value: [3, 8] },
+          { name: 'Mixed/Other', value: [10, 20] }
+        ]
+      };
+    }
+    
+    // Render profile list
+    function renderProfileList() {
+      const profileList = document.getElementById('profileList');
+      profileList.innerHTML = '';
+      
+      // Apply filters
+      const statusFilter = document.getElementById('statusFilter').value;
+      const locationFilter = document.getElementById('locationFilter').value;
+      
+      const filteredProfiles = profiles.filter(profile => {
+        // Status filter
+        if (statusFilter !== 'all' && profile.status !== statusFilter) {
+          return false;
+        }
+        
+        // Location filter
+        if (locationFilter !== 'all' && !profile.location.toLowerCase().includes(locationFilter.toLowerCase())) {
+          return false;
+        }
+        
+        return true;
+      });
+      
+      // Check if we have profiles after filtering
+      if (filteredProfiles.length === 0) {
+        profileList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-search empty-icon"></i>
+            <div class="empty-title">No profiles found</div>
+            <div class="empty-message">Try adjusting your filters or import more profiles.</div>
+          </div>
+        `;
+        return;
+      }
+      
+      // Render each profile
+      filteredProfiles.forEach((profile, index) => {
+        const profileItem = document.createElement('div');
+        profileItem.className = `profile-item ${index === currentProfileIndex ? 'active' : ''}`;
+        profileItem.onclick = () => loadProfile(profiles.indexOf(profile));
+        
+        // Get status class
+        const statusClass = profile.status === 'labeled' ? 'status-labeled' : 
+                            (profile.status === 'unlabeled' ? 'status-unlabeled' : 'status-skipped');
+        
+        profileItem.innerHTML = `
+          <img src="${profile.images[0].url}" alt="Profile" class="profile-item-image">
+          <div class="profile-item-info">
+            <div class="profile-item-title">Profile ${profile.id}</div>
+            <div class="profile-item-subtitle">${profile.location}</div>
+            <span class="profile-item-status ${statusClass}">
+              ${profile.status.charAt(0).toUpperCase() + profile.status.slice(1)}
+            </span>
+          </div>
+        `;
+        
+        profileList.appendChild(profileItem);
+      });
+    }
+    
+    // Load a profile into the editor
+    function loadProfile(index) {
+      if (isLabelsDirty) {
+        const confirmed = confirm('You have unsaved changes. Do you want to load a different profile?');
+        if (!confirmed) {
+          return;
+        }
+      }
+      
+      currentProfileIndex = index;
+      currentImageIndex = 0;
+      isLabelsDirty = false;
+      
+      const profile = profiles[index];
+      
+      // Update editor title
+      document.getElementById('editorTitle').textContent = `Profile ${profile.id}`;
+      
+      // Update profile details
+      document.getElementById('profileId').textContent = profile.id;
+      document.getElementById('profileLocation').textContent = profile.location;
+      document.getElementById('scrapedAt').textContent = profile.scrapedAt;
+      document.getElementById('profileBio').textContent = profile.bio;
+      
+      // Update images
+      document.getElementById('mainImage').src = profile.images[0].url;
+      document.getElementById('currentImageIndex').textContent = '1';
+      document.getElementById('totalImages').textContent = profile.images.length;
+      
+      // Update image navigation buttons
+      document.getElementById('prevImageBtn').disabled = true;
+      document.getElementById('nextImageBtn').disabled = profile.images.length <= 1;
+      
+      // Render thumbnails
+      const thumbnailsContainer = document.getElementById('imageThumbnails');
+      thumbnailsContainer.innerHTML = '';
+      
+      profile.images.forEach((image, idx) => {
+        const thumbnail = document.createElement('img');
+        thumbnail.className = `profile-thumbnail ${idx === 0 ? 'active' : ''}`;
+        thumbnail.src = image.url;
+        thumbnail.alt = `Thumbnail ${idx + 1}`;
+        thumbnail.onclick = () => selectImage(idx);
+        thumbnailsContainer.appendChild(thumbnail);
+      });
+      
+      // Update label fields
+      updateLabelFields(profile.labels);
+      
+      // Update active item in the list
+      const items = document.querySelectorAll('.profile-item');
+      items.forEach((item, idx) => {
+        item.classList.toggle('active', idx === currentProfileIndex);
+      });
+    }
+    
+    // Show empty state when no profiles are available
+    function showEmptyState() {
+      const profileEditor = document.getElementById('profileEditor');
+      profileEditor.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-image empty-icon"></i>
+          <div class="empty-title">No profiles available</div>
+          <div class="empty-message">Import profiles to start labeling or try adjusting your filters.</div>
+        </div>
+      `;
+    }
+    
+    // Update label fields with profile data
+    function updateLabelFields(labels) {
+      // Basic attributes
+      updateRangeField('age', labels.age[0], labels.age[1], 18, 50);
+      updateRangeField('height', labels.height[0], labels.height[1], 140, 200);
+      updateRangeField('weight', labels.weight[0], labels.weight[1], 40, 100);
+      
+      // Gender
+      const female = labels.gender.find(g => g.name === 'female') || { value: [0, 0] };
+      const male = labels.gender.find(g => g.name === 'male') || { value: [0, 0] };
+      
+      document.getElementById('femaleMin').value = female.value[0];
+      document.getElementById('femaleMax').value = female.value[1];
+      document.getElementById('maleMin').value = male.value[0];
+      document.getElementById('maleMax').value = male.value[1];
+      
+      // Personality attributes
+      updateRangeField('intelligence', labels.intelligence[0], labels.intelligence[1], 0, 100);
+      updateRangeField('cooperativeness', labels.cooperativeness[0], labels.cooperativeness[1], 0, 100);
+      updateRangeField('confidence', labels.confidence[0], labels.confidence[1], 0, 100);
+      
+      // Ethnicity
+      const ethnicityMap = {
+        'European': ['european', 0],
+        'East Asian': ['eastAsian', 1],
+        'South Asian': ['southAsian', 2],
+        'African': ['african', 3],
+        'Middle Eastern': ['middleEastern', 4],
+        'Mixed/Other': ['mixed', 5]
+      };
+      
+      labels.ethnicity.forEach(ethnicity => {
+        const [id, _] = ethnicityMap[ethnicity.name] || ['', -1];
+        if (id) {
+          document.getElementById(`${id}Min`).value = ethnicity.value[0];
+          document.getElementById(`${id}Max`).value = ethnicity.value[1];
+        }
+      });
+    }
+    
+    // Update a range field with the given values
+    function updateRangeField(id, minValue, maxValue, minRange, maxRange) {
+      // Update text displays
+      document.getElementById(`${id}Min`).textContent = minValue;
+      document.getElementById(`${id}Max`).textContent = maxValue;
+      
+      // Calculate percentages for the visual elements
+      const range = maxRange - minRange;
+      const minPercent = ((minValue - minRange) / range) * 100;
+      const maxPercent = ((maxValue - minRange) / range) * 100;
+      const width = maxPercent - minPercent;
+      
+      // Update visual elements
+      document.getElementById(`${id}Fill`).style.width = `${width}%`;
+      document.getElementById(`${id}Fill`).style.left = `${minPercent}%`;
+      document.getElementById(`${id}MinHandle`).style.left = `${minPercent}%`;
+      document.getElementById(`${id}MaxHandle`).style.left = `${maxPercent}%`;
+    }
+    
+    // Initialize range sliders
+    function initRangeSliders() {
+      // Basic attributes
+      initRangeSlider('age', 18, 50);
+      initRangeSlider('height', 140, 200);
+      initRangeSlider('weight', 40, 100);
+      
+      // Personality attributes
+      initRangeSlider('intelligence', 0, 100);
+      initRangeSlider('cooperativeness', 0, 100);
+      initRangeSlider('confidence', 0, 100);
+    }
+    
+    // Initialize a range slider with drag functionality
+    function initRangeSlider(id, min, max) {
+      const minHandle = document.getElementById(`${id}MinHandle`);
+      const maxHandle = document.getElementById(`${id}MaxHandle`);
+      const track = minHandle.parentElement;
+      
+      // Variables for drag state
+      let isDragging = false;
+      let activeHandle = null;
+      let startX = 0;
+      let startLeft = 0;
+      
+      // Helper to update the display
+      const updateDisplay = (handle, left) => {
+        // Ensure the left position is within bounds
+        left = Math.max(0, Math.min(100, left));
+        
+        // Check handle constraints (min handle can't go past max, max can't go before min)
+        if (handle === minHandle) {
+          const maxLeft = parseFloat(maxHandle.style.left);
+          left = Math.min(left, maxLeft - 5);
+        } else {
+          const minLeft = parseFloat(minHandle.style.left);
+          left = Math.max(left, minLeft + 5);
+        }
+        
+        // Update handle position
+        handle.style.left = `${left}%`;
+        
+        // Update the fill element
+        const fillElement = document.getElementById(`${id}Fill`);
+        const minLeft = parseFloat(minHandle.style.left);
+        const maxLeft = parseFloat(maxHandle.style.left);
+        fillElement.style.left = `${minLeft}%`;
+        fillElement.style.width = `${maxLeft - minLeft}%`;
+        
+        // Calculate and update the value display
+        const value = Math.round(min + (left / 100) * (max - min));
+        if (handle === minHandle) {
+          document.getElementById(`${id}Min`).textContent = value;
+        } else {
+          document.getElementById(`${id}Max`).textContent = value;
+        }
+        
+        // Mark form as dirty
+        isLabelsDirty = true;
+      };
+      
+      // Mouse down event for both handles
+      const handleMouseDown = (e, handle) => {
+        isDragging = true;
+        activeHandle = handle;
+        startX = e.clientX;
+        startLeft = parseFloat(handle.style.left);
+        
+        // Prevent text selection during drag
+        document.body.style.userSelect = 'none';
+        
+        // Add event listeners for drag and release
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        
+        // Prevent default behavior
+        e.preventDefault();
+      };
+      
+      // Mouse move event (during drag)
+      const handleMouseMove = (e) => {
+        if (!isDragging) return;
+        
+        // Calculate new position
+        const deltaX = e.clientX - startX;
+        const trackWidth = track.offsetWidth;
+        const deltaPercent = (deltaX / trackWidth) * 100;
+        const newLeft = startLeft + deltaPercent;
+        
+        // Update display
+        updateDisplay(activeHandle, newLeft);
+      };
+      
+      // Mouse up event (end drag)
+      const handleMouseUp = () => {
+        isDragging = false;
+        document.body.style.userSelect = '';
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+      
+      // Add event listeners to handles
+      minHandle.addEventListener('mousedown', (e) => handleMouseDown(e, minHandle));
+      maxHandle.addEventListener('mousedown', (e) => handleMouseDown(e, maxHandle));
+      
+      // Handle click on track
+      track.addEventListener('click', (e) => {
+        if (e.target !== track) return;
+        
+        const rect = track.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickPercent = (clickX / rect.width) * 100;
+        
+        // Determine which handle to move (closest one)
+        const minLeft = parseFloat(minHandle.style.left);
+        const maxLeft = parseFloat(maxHandle.style.left);
+        const handle = Math.abs(clickPercent - minLeft) < Math.abs(clickPercent - maxLeft) ? minHandle : maxHandle;
+        
+        // Update display
+        updateDisplay(handle, clickPercent);
+      });
+    }
+    
+    // Setup form change detection for inputs
+    function setupFormChangeDetection() {
+      // Listen for changes in ethnicity inputs
+      document.querySelectorAll('.ethnicity-input').forEach(input => {
+        input.addEventListener('change', () => {
+          isLabelsDirty = true;
+        });
+      });
+      
+      // Listen for changes in gender inputs
+      document.querySelectorAll('.gender-input').forEach(input => {
+        input.addEventListener('change', () => {
+          isLabelsDirty = true;
+        });
+      });
+    }
+    
+    // Navigate to previous image
+    function prevImage() {
+      if (currentImageIndex > 0) {
+        currentImageIndex--;
+        updateCurrentImage();
+      }
+    }
+    
+    // Navigate to next image
+    function nextImage() {
+      const profile = profiles[currentProfileIndex];
+      if (currentImageIndex < profile.images.length - 1) {
+        currentImageIndex++;
+        updateCurrentImage();
+      }
+    }
+    
+    // Select a specific image
+    function selectImage(index) {
+      currentImageIndex = index;
+      updateCurrentImage();
+    }
+    
+    // Update the current image display
+    function updateCurrentImage() {
+      const profile = profiles[currentProfileIndex];
+      
+      // Update main image
+      document.getElementById('mainImage').src = profile.images[currentImageIndex].url;
+      
+      // Update counter
+      document.getElementById('currentImageIndex').textContent = currentImageIndex + 1;
+      
+      // Update navigation buttons
+      document.getElementById('prevImageBtn').disabled = currentImageIndex === 0;
+      document.getElementById('nextImageBtn').disabled = currentImageIndex === profile.images.length - 1;
+      
+      // Update thumbnails
+      const thumbnails = document.querySelectorAll('.profile-thumbnail');
+      thumbnails.forEach((thumbnail, index) => {
+        thumbnail.classList.toggle('active', index === currentImageIndex);
+      });
+    }
+    
+    // Refresh profiles
+    function refreshProfiles() {
+      if (isLabelsDirty) {
+        const confirmed = confirm('You have unsaved changes. Do you want to refresh the profiles?');
+        if (!confirmed) {
+          return;
+        }
+      }
+      
+      loadProfiles();
+    }
+    
+    // Skip the current profile
+    function skipProfile() {
+      const profile = profiles[currentProfileIndex];
+      profile.status = 'skipped';
+      
+      // Save changes
+      saveProfile(profile);
+      
+      // Move to next profile if available
+      const nextIndex = currentProfileIndex + 1;
+      if (nextIndex < profiles.length) {
+        loadProfile(nextIndex);
+      } else {
+        loadProfile(0);
+      }
+      
+      // Update the profile list
+      renderProfileList();
+    }
+    
+    // Reset labels to original values
+    function resetLabels() {
+      if (isLabelsDirty) {
+        const confirmed = confirm('Are you sure you want to reset all labels to their original values?');
+        if (!confirmed) {
+          return;
+        }
+        
+        const profile = profiles[currentProfileIndex];
+        updateLabelFields(profile.labels);
+        isLabelsDirty = false;
+      }
+    }
+    
+    // Save current labels
+    function saveLabels() {
+      const profile = profiles[currentProfileIndex];
+      
+      // Collect all label values
+      const labels = {
+        age: [
+          parseInt(document.getElementById('ageMin').textContent),
+          parseInt(document.getElementById('ageMax').textContent)
+        ],
+        height: [
+          parseInt(document.getElementById('heightMin').textContent),
+          parseInt(document.getElementById('heightMax').textContent)
+        ],
+        weight: [
+          parseInt(document.getElementById('weightMin').textContent),
+          parseInt(document.getElementById('weightMax').textContent)
+        ],
+        gender: [
+          {
+            name: 'female',
+            value: [
+              parseInt(document.getElementById('femaleMin').value),
+              parseInt(document.getElementById('femaleMax').value)
+            ]
+          },
+          {
+            name: 'male',
+            value: [
+              parseInt(document.getElementById('maleMin').value),
+              parseInt(document.getElementById('maleMax').value)
+            ]
+          }
+        ],
+        intelligence: [
+          parseInt(document.getElementById('intelligenceMin').textContent),
+          parseInt(document.getElementById('intelligenceMax').textContent)
+        ],
+        cooperativeness: [
+          parseInt(document.getElementById('cooperativenessMin').textContent),
+          parseInt(document.getElementById('cooperativenessMax').textContent)
+        ],
+        confidence: [
+          parseInt(document.getElementById('confidenceMin').textContent),
+          parseInt(document.getElementById('confidenceMax').textContent)
+        ],
+        ethnicity: [
+          {
+            name: 'European',
+            value: [
+              parseInt(document.getElementById('europeanMin').value),
+              parseInt(document.getElementById('europeanMax').value)
+            ]
+          },
+          {
+            name: 'East Asian',
+            value: [
+              parseInt(document.getElementById('eastAsianMin').value),
+              parseInt(document.getElementById('eastAsianMax').value)
+            ]
+          },
+          {
+            name: 'South Asian',
+            value: [
+              parseInt(document.getElementById('southAsianMin').value),
+              parseInt(document.getElementById('southAsianMax').value)
+            ]
+          },
+          {
+            name: 'African',
+            value: [
+              parseInt(document.getElementById('africanMin').value),
+              parseInt(document.getElementById('africanMax').value)
+            ]
+          },
+          {
+            name: 'Middle Eastern',
+            value: [
+              parseInt(document.getElementById('middleEasternMin').value),
+              parseInt(document.getElementById('middleEasternMax').value)
+            ]
+          },
+          {
+            name: 'Mixed/Other',
+            value: [
+              parseInt(document.getElementById('mixedMin').value),
+              parseInt(document.getElementById('mixedMax').value)
+            ]
+          }
+        ]
+      };
+      
+      // Update profile
+      profile.labels = labels;
+      profile.status = 'labeled';
+      
+      // Save profile
+      saveProfile(profile);
+      
+      // Reset dirty flag
+      isLabelsDirty = false;
+      
+      // Show success message
+      alert('Labels saved successfully!');
+      
+      // Move to next profile if available
+      const nextIndex = currentProfileIndex + 1;
+      if (nextIndex < profiles.length) {
+        loadProfile(nextIndex);
+      } else {
+        // Update the current profile in the list
+        renderProfileList();
+      }
+    }
+    
+    // Save profile data
+    function saveProfile(profile) {
+      // In a real application, this would make an API call to save the profile
+      console.log('Saving profile:', profile);
+      
+      // Update the profile in our local array
+      profiles[currentProfileIndex] = profile;
+    }
+    
+    // Export labels
+    function exportLabels() {
+      // Count labeled profiles
+      const labeledCount = profiles.filter(p => p.status === 'labeled').length;
+      
+      // Show alert
+      alert(`Exported labels for ${labeledCount} profiles successfully!`);
+      
+      // In a real application, this would trigger a download of the labels data
+      console.log('Exporting labels for profiles:', profiles);
+    }
+  </script>
+</body>
+</html>

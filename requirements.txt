@@ -1,0 +1,43 @@
+# Web Framework
+Flask==2.3.3
+Werkzeug==2.3.7
+Jinja2==3.1.2
+
+# Selenium for browser automation
+selenium==4.12.0
+webdriver-manager==4.0.0
+
+# HTTP Requests
+requests==2.31.0
+
+# Google API client
+google-api-python-client==2.97.0
+google-auth==2.22.0
+google-auth-oauthlib==1.0.0
+google-auth-httplib2==0.1.0
+
+# Data handling
+pandas==2.0.3
+numpy==1.25.2
+
+# Image processing
+Pillow==10.0.0
+
+# Environment variables
+python-dotenv==1.0.0
+
+# Concurrent processing
+concurrent-futures==3.0.5
+
+# Testing
+pytest==7.4.0
+
+# Documentation
+Sphinx==7.2.5
+
+# Development tools
+flake8==6.1.0
+black==23.7.0
+
+# Production server
+gunicorn==21.2.0

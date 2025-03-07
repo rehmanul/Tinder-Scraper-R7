@@ -1,0 +1,37 @@
+tinder_scraper_project/
+├── app.py                     # Main Flask application
+├── requirements.txt           # Python dependencies
+├── config.env.example         # Environment variables template
+├── credentials.json           # Google API credentials (not included in repo)
+├── static/                    # Static assets
+│   ├── css/
+│   │   ├── styles.css         # Common CSS styles
+│   │   └── dark-theme.css     # Dark theme styles
+│   ├── js/
+│   │   ├── dashboard.js       # Dashboard functionality
+│   │   ├── data-viewer.js     # Data viewer functionality
+│   │   ├── logs-viewer.js     # Logs viewer functionality
+│   │   ├── stats.js           # Statistics functionality
+│   │   └── labeling-tool.js   # Labeling tool functionality
+│   └── img/
+│       └── logo.png           # Application logo
+├── templates/                 # HTML templates
+│   ├── base.html              # Base template with common elements
+│   ├── index.html             # Dashboard template
+│   ├── data_center.html       # Data viewer template
+│   ├── logs.html              # Logs viewer template
+│   ├── stryke_center.html     # Statistics template
+│   ├── labeling.html          # Labeling tool template
+│   ├── 404.html               # Not found error page
+│   └── 500.html               # Server error page
+├── tinder_images/             # Directory to store scraped images
+├── tinder_scraper.py          # Tinder scraper module
+├── google_sheets_integration.py # Google Sheets integration module
+├── utils/
+│   ├── __init__.py
+│   ├── image_processor.py     # Image processing utilities
+│   └── label_generator.py     # Automated label generation utilities
+└── tests/
+    ├── __init__.py
+    ├── test_scraper.py        # Tests for scraper functionality
+    └── test_sheets.py         # Tests for Google Sheets integration

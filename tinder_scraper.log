@@ -1,0 +1,17 @@
+2025-03-08 04:11:06,907 - __main__ - ERROR - Failed to initialize Google Sheets service: No key could be detected.
+2025-03-08 04:11:07,010 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.17.0.2:5000
+2025-03-08 04:11:07,010 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-08 04:11:07,013 - werkzeug - INFO -  * Restarting with stat
+2025-03-08 04:11:07,527 - __main__ - ERROR - Failed to initialize Google Sheets service: No key could be detected.
+2025-03-08 04:11:07,536 - werkzeug - WARNING -  * Debugger is active!
+2025-03-08 04:11:07,537 - werkzeug - INFO -  * Debugger PIN: 202-063-492
+2025-03-08 04:11:09,622 - werkzeug - INFO - 127.0.0.1 - - [08/Mar/2025 04:11:09] "GET / HTTP/1.1" 200 -
+2025-03-08 04:21:57,196 - werkzeug - INFO - 127.0.0.1 - - [08/Mar/2025 04:21:57] "GET / HTTP/1.1" 200 -
+2025-03-08 04:21:57,223 - werkzeug - INFO - 127.0.0.1 - - [08/Mar/2025 04:21:57] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-03-08 04:34:36,045 - werkzeug - INFO - 127.0.0.1 - - [08/Mar/2025 04:34:36] "GET / HTTP/1.1" 200 -
+2025-03-08 04:34:48,505 - werkzeug - INFO - 127.0.0.1 - - [08/Mar/2025 04:34:48] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-03-08 04:35:09,481 - werkzeug - INFO - 127.0.0.1 - - [08/Mar/2025 04:35:09] "GET / HTTP/1.1" 200 -
+2025-03-08 04:57:42,351 - werkzeug - INFO - 127.0.0.1 - - [08/Mar/2025 04:57:42] "GET / HTTP/1.1" 200 -

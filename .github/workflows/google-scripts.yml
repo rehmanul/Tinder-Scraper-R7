@@ -1,0 +1,44 @@
+# Last updated: 2025-03-08 00:49:43 UTC
+# Author: rehmanul
+name: Google Scripts Workflow
+
+env:
+  LAST_UPDATED: '2025-03-08 00:49:43'
+  WORKFLOW_AUTHOR: 'rehmanul'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+
+    - name: Install Clasp
+      run: npm install -g @google/clasp
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Welcome first-time contributors
+      uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: "Welcome! Thanks for opening your first issue in our Google Scripts project!"
+        pr-message: "Thank you for your first PR to our Google Scripts project!"

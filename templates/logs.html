@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Scraping Logs
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            View detailed logs of the scraping process
+        </p>
+    </div>
+
+    <div class="border-t border-gray-200">
+        <div class="px-4 py-5 sm:p-6">
+            <!-- Filters -->
+            <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                <h4 class="text-base font-medium text-gray-900 mb-4">Filters</h4>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                    <div>
+                        <label for="log-type" class="block text-sm font-medium text-gray-700">Log Type</label>
+                        <select id="log-type" name="log-type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="all">All Logs</option>
+                            <option value="info">Info</option>
+                            <option value="error">Error</option>
+                            <option value="warning">Warning</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="location-filter" class="block text-sm font-medium text-gray-700">Location</label>
+                        <select id="location-filter" name="location-filter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">All Locations</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="date-from" class="block text-sm font-medium text-gray-700">From Date</label>
+                        <input type="date" id="date-from" name="date-from" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    </div>
+                    <div>
+                        <label for="date-to" class="block text-sm font-medium text-gray-700">To Date</label>
+                        <input type="date" id="date-to" name="date-to" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Log Table -->
+            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Timestamp
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Location
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Profile ID
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Message
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="log-entries">
+                        <!-- Log entries will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-6 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+                <div class="flex flex-1 justify-between sm:hidden">
+                    <button class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</button>
+                    <button class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</button>
+                </div>
+                <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing <span class="font-medium" id="log-start-index">1</span> to <span class="font-medium" id="log-end-index">10</span> of <span class="font-medium" id="log-total-count">20</span> results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination" id="log-pagination">
+                            <!-- Pagination buttons will be inserted here -->
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+const itemsPerPage = 20;
+
+// Fetch and display logs
+function fetchLogs() {
+    const logType = document.getElementById('log-type').value;
+    const location = document.getElementById('location-filter').value;
+    const dateFrom = document.getElementById('date-from').value;
+    const dateTo = document.getElementById('date-to').value;
+
+    fetch(`/api/get-logs?type=${logType}&location=${location}&date_from=${dateFrom}&date_to=${dateTo}&page=${currentPage}&per_page=${itemsPerPage}`)
+        .then(response => response.json())
+        .then(data => {
+            displayLogs(data.logs);
+            updatePagination(data.total);
+        });
+}
+
+// Display logs in table
+function displayLogs(logs) {
+    const tbody = document.getElementById('log-entries');
+    tbody.innerHTML = '';
+
+    logs.forEach(log => {
+        const row = `
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${log.timestamp}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getLogTypeClass(log.type)}">
+                        ${log.type}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${log.location}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${log.profile_id || '-'}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    ${log.message}
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+
+// Get CSS class for log type
+function getLogTypeClass(type) {
+    switch (type.toLowerCase()) {
+        case 'info':
+            return 'bg-blue-100 text-blue-800';
+        case 'error':
+            return 'bg-red-100 text-red-800';
+        case 'warning':
+            return 'bg-yellow-100 text-yellow-800';
+        default:
+            return 'bg-gray-100 text-gray-800';
+    }
+}
+
+// Update pagination
+function updatePagination(total) {
+    const totalPages = Math.ceil(total / itemsPerPage);
+    const pagination = document.getElementById('log-pagination');
+    pagination.innerHTML = '';
+
+    // Previous button
+    pagination.innerHTML += `
+        <button onclick="changePage(${currentPage - 1})" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" ${currentPage === 1 ? 'disabled' : ''}>
+            Previous
+        </button>
+    `;
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        pagination.innerHTML += `
+            <button onclick="changePage(${i})" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold ${currentPage === i ? 'bg-indigo-600 text-white' : 'text-gray-900'} ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                ${i}
+            </button>
+        `;
+    }
+
+    // Next button
+    pagination.innerHTML += `
+        <button onclick="changePage(${currentPage + 1})" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" ${currentPage === totalPages ? 'disabled' : ''}>
+            Next
+        </button>
+    `;
+
+    // Update showing text
+    document.getElementById('log-start-index').textContent = ((currentPage - 1) * itemsPerPage) + 1;
+    document.getElementById('log-end-index').textContent = Math.min(currentPage * itemsPerPage, total);
+    document.getElementById('log-total-count').textContent = total;
+}
+
+// Change page
+function changePage(page) {
+    currentPage = page;
+    fetchLogs();
+}
+
+// Event listeners
+document.getElementById('log-type').addEventListener('change', fetchLogs);
+document.getElementById('location-filter').addEventListener('change', fetchLogs);
+document.getElementById('date-from').addEventListener('change', fetchLogs);
+document.getElementById('date-to').addEventListener('change', fetchLogs);
+
+// Initial load
+fetchLogs();
+
+// Populate location filter
+fetch('/api/get-locations')
+    .then(response => response.json())
+    .then(data => {
+        const select = document.getElementById('location-filter');
+        data.locations.forEach(location => {
+            const option = document.createElement('option');
+            option.value = location;
+            option.textContent = location;
+            select.appendChild(option);
+        });
+    });
+</script>
+{% endblock %}

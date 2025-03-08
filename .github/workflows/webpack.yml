@@ -1,4 +1,10 @@
+# Last updated: 2025-03-08 00:10:12 UTC
+# Author: rehmanul
 name: NodeJS with Webpack
+
+env:
+  LAST_UPDATED: '2025-03-08 00:10:12'
+  WORKFLOW_AUTHOR: 'rehmanul'
 
 on:
   push:

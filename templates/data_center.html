@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Data Center
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            View and manage scraped profiles
+        </p>
+    </div>
+
+    <div class="border-t border-gray-200">
+        <div class="px-4 py-5 sm:p-6">
+            <!-- Filters -->
+            <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                <h4 class="text-base font-medium text-gray-900 mb-4">Filters</h4>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
+                        <select id="location" name="location" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">All Locations</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="min-images" class="block text-sm font-medium text-gray-700">Min Images</label>
+                        <input type="number" id="min-images" name="min-images" min="1" value="5" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    </div>
+                    <div>
+                        <label for="sort-by" class="block text-sm font-medium text-gray-700">Sort By</label>
+                        <select id="sort-by" name="sort-by" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="recent">Most Recent</option>
+                            <option value="images">Most Images</option>
+                            <option value="location">Location</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Grid -->
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" id="profile-grid">
+                <!-- Profile cards will be inserted here -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-6 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+                <div class="flex flex-1 justify-between sm:hidden">
+                    <button class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</button>
+                    <button class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</button>
+                </div>
+                <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing <span class="font-medium" id="start-index">1</span> to <span class="font-medium" id="end-index">10</span> of <span class="font-medium" id="total-count">20</span> results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination" id="pagination">
+                            <!-- Pagination buttons will be inserted here -->
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="hidden fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Profile Details
+                        </h3>
+                        <div class="mt-4">
+                            <div id="modal-content">
+                                <!-- Profile details will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" onclick="closeModal()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+const itemsPerPage = 9;
+let profiles = [];
+
+// Fetch and display profiles
+function fetchProfiles() {
+    const location = document.getElementById('location').value;
+    const minImages = document.getElementById('min-images').value;
+    const sortBy = document.getElementById('sort-by').value;
+
+    fetch(`/api/get-profiles?location=${location}&min_images=${minImages}&sort=${sortBy}&page=${currentPage}&per_page=${itemsPerPage}`)
+        .then(response => response.json())
+        .then(data => {
+            profiles = data.profiles;
+            displayProfiles();
+            updatePagination(data.total);
+        });
+}
+
+// Display profiles in grid
+function displayProfiles() {
+    const grid = document.getElementById('profile-grid');
+    grid.innerHTML = '';
+
+    profiles.forEach(profile => {
+        const card = `
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <img class="h-12 w-12 rounded-full" src="${profile.thumbnail}" alt="">
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">Profile ${profile.profile_id}</h3>
+                            <p class="text-sm text-gray-500">${profile.location}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-500">Images: ${profile.image_count}</p>
+                        <p class="text-sm text-gray-500">Scraped: ${profile.scraped_at}</p>
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="showProfile('${profile.profile_id}')" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        grid.innerHTML += card;
+    });
+}
+
+// Update pagination
+function updatePagination(total) {
+    const totalPages = Math.ceil(total / itemsPerPage);
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+
+    // Previous button
+    pagination.innerHTML += `
+        <button onclick="changePage(${currentPage - 1})" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" ${currentPage === 1 ? 'disabled' : ''}>
+            Previous
+        </button>
+    `;
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        pagination.innerHTML += `
+            <button onclick="changePage(${i})" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold ${currentPage === i ? 'bg-indigo-600 text-white' : 'text-gray-900'} ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                ${i}
+            </button>
+        `;
+    }
+
+    // Next button
+    pagination.innerHTML += `
+        <button onclick="changePage(${currentPage + 1})" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" ${currentPage === totalPages ? 'disabled' : ''}>
+            Next
+        </button>
+    `;
+
+    // Update showing text
+    document.getElementById('start-index').textContent = ((currentPage - 1) * itemsPerPage) + 1;
+    document.getElementById('end-index').textContent = Math.min(currentPage * itemsPerPage, total);
+    document.getElementById('total-count').textContent = total;
+}
+
+// Change page
+function changePage(page) {
+    currentPage = page;
+    fetchProfiles();
+}
+
+// Show profile details
+function showProfile(profileId) {
+    fetch(`/api/get-profile/${profileId}`)
+        .then(response => response.json())
+        .then(profile => {
+            const modal = document.getElementById('profile-modal');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="aspect-w-16 aspect-h-9">
+                        <div class="grid grid-cols-2 gap-2">
+                            ${profile.images.map(img => `
+                                <img src="${img}" alt="Profile image" class="rounded-lg object-cover w-full h-48">
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="text-sm font-medium text-gray-900">Labels</h4>
+                        <div class="mt-2 grid grid-cols-2 gap-2">
+                            ${Object.entries(profile.labels).map(([key, value]) => `
+                                <div class="text-sm">
+                                    <span class="font-medium">${key}:</span>
+                                    <span>${Array.isArray(value) ? `${value[0]}-${value[1]}` : value}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        });
+}
+
+// Close modal
+function closeModal() {
+    const modal = document.getElementById('profile-modal');
+    modal.classList.add('hidden');
+}
+
+// Event listeners
+document.getElementById('location').addEventListener('change', fetchProfiles);
+document.getElementById('min-images').addEventListener('change', fetchProfiles);
+document.getElementById('sort-by').addEventListener('change', fetchProfiles);
+
+// Initial load
+fetchProfiles();
+</script>
+{% endblock %}
